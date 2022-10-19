@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
-import ru.yandex.practicum.filmorate.exceptions.LikeNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.validator.ReleaseDateValid;
 
 import javax.validation.constraints.*;
@@ -27,8 +27,11 @@ public class Film {
     }
 
     public void deleteLike(Long userId) {
-        if (!likes.contains(userId)) {
-            throw new LikeNotFoundException(this.id, userId);
+        try {
+            likes.remove(userId);
+        } catch (NullPointerException e) {
+            throw new EntityNotFoundException(
+                    String.format("%s with id= %s not found to delete like", User.class, userId));
         }
     }
 

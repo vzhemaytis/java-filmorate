@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.user.impl;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -30,8 +30,8 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User updateUser(User user) {
-        if (!users.containsKey(user.getId())) {
-            throw new UserNotFoundException(user.getId());
+        if (users.get(user.getId()) == null) {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", User.class, user.getId()));
         }
         userNameCheck(user);
         users.put(user.getId(), user);
@@ -40,19 +40,19 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User findUser(Long id) {
-        if (!users.containsKey(id)){
-            throw new UserNotFoundException(id);
+        if (users.get(id) == null) {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", User.class, id));
         }
         return users.get(id);
     }
 
     @Override
     public void addFriend(Long id, Long friendId) {
-        if (!users.containsKey(id)) {
-            throw new UserNotFoundException(id);
+        if (users.get(id) == null) {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", User.class, id));
         }
-        if (!users.containsKey(friendId)) {
-            throw new UserNotFoundException(friendId);
+        if (users.get(friendId) == null) {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", User.class, friendId));
         }
         users.get(id).addFriend(friendId);
         users.get(friendId).addFriend(id);
@@ -60,11 +60,11 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void deleteFriend(Long id, Long friendId) {
-        if (!users.containsKey(id)) {
-            throw new UserNotFoundException(id);
+        if (users.get(id) == null) {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", User.class, id));
         }
-        if (!users.containsKey(friendId)) {
-            throw new UserNotFoundException(friendId);
+        if (users.get(friendId) == null) {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", User.class, friendId));
         }
         users.get(id).deleteFriend(friendId);
         users.get(friendId).deleteFriend(id);
@@ -72,8 +72,8 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public List<User> getUserFriends(Long id) {
-        if (!users.containsKey(id)) {
-            throw new UserNotFoundException(id);
+        if (users.get(id) == null) {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", User.class, id));
         }
         return users.values().stream().
                 filter(user -> users.get(id).getFriends().contains(user.getId())).
@@ -82,11 +82,11 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public List<User> getCommonFriends(Long id, Long otherId) {
-        if (!users.containsKey(id)) {
-            throw new UserNotFoundException(id);
+        if (users.get(id) == null) {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", User.class, id));
         }
-        if (!users.containsKey(otherId)) {
-            throw new UserNotFoundException(otherId);
+        if (users.get(otherId) == null) {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", User.class, otherId));
         }
         return users.get(id).getFriends().stream().
                 filter(userId -> users.get(otherId).getFriends().contains(userId)).

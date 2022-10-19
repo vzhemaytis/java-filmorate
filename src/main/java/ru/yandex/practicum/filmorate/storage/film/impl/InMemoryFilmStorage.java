@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film.impl;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -22,6 +22,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     private long getFilmId() {
         return filmId++;
     }
+
     private final UserStorage userStorage;
 
     public InMemoryFilmStorage(UserStorage userStorage) {
@@ -41,16 +42,16 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public void updateFilm(Film film) {
-        if (!films.containsKey(film.getId())) {
-            throw new FilmNotFoundException(film.getId());
+        if (films.get(film.getId()) == null) {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", Film.class, film.getId()));
         }
         films.put(film.getId(), film);
     }
 
     @Override
     public Film findFilm(Long id) {
-        if (!films.containsKey(id)) {
-            throw new FilmNotFoundException(id);
+        if (films.get(id) == null) {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", Film.class, id));
         }
         return films.get(id);
     }
@@ -58,12 +59,18 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public void addLike(Long id, Long userId) {
         User user = userStorage.findUser(userId); // Проверка наличия юзера
+        if (films.get(id) == null) {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", Film.class, id));
+        }
         films.get(id).addLike(user.getId());
     }
 
     @Override
     public void deleteLike(Long id, Long userId) {
         User user = userStorage.findUser(userId); // Проверка наличия юзера
+        if (films.get(id) == null) {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", Film.class, id));
+        }
         films.get(id).deleteLike(user.getId());
     }
 

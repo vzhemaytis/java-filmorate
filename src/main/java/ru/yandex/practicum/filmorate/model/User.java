@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
-import ru.yandex.practicum.filmorate.exceptions.FriendNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.validator.LoginValid;
 
 import javax.validation.constraints.*;
@@ -28,9 +28,12 @@ public class User {
     }
 
     public void deleteFriend(Long friendId) {
-        if (!friends.contains(friendId)) {
-            throw new FriendNotFoundException(this.id, friendId);
+        try {
+            friends.remove(friendId);
+        } catch (NullPointerException e) {
+            throw new EntityNotFoundException(
+                    String.format("%s with id= %s not found in friends list of user with id= %s",
+                            User.class, friendId, this.id));
         }
-        friends.remove(friendId);
     }
 }
