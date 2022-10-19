@@ -1,14 +1,17 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
+import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.validator.LoginValid;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class User {
-    private int id;
+    private long id;
     @NotBlank(message = "email should not be blank")
     @Email(message = "wrong email pattern")
     private String email;
@@ -18,4 +21,19 @@ public class User {
     private String name;
     @Past(message = "birthday should be in the past")
     private LocalDate birthday;
+    private final Set<Long> friends = new HashSet<>();
+
+    public void addFriend(Long friendId) {
+        friends.add(friendId);
+    }
+
+    public void deleteFriend(Long friendId) {
+        try {
+            friends.remove(friendId);
+        } catch (NullPointerException e) {
+            throw new EntityNotFoundException(
+                    String.format("%s with id= %s not found in friends list of user with id= %s",
+                            User.class, friendId, this.id));
+        }
+    }
 }
