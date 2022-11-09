@@ -1,6 +1,6 @@
 ### ER diagram
 
-[![](src/main/resources/sql/ER diagram.jpg)](src/main/resources/sql/ER diagram.jpg)
+[![](/assets/ER%20diagram.jpg)](assets/ER%20diagram.jpg)
 
 Для реализации зависимости многие ко многим использованы
 три дополнительные таблицы:
