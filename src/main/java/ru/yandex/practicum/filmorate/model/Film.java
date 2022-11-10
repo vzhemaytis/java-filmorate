@@ -20,6 +20,9 @@ public class Film {
     private LocalDate releaseDate;
     @Positive(message = "duration should be positive")
     private int duration;
+    @NotBlank(message = "Mpa should be not blank")
+    private Mpa mpa;
+    private final Set<Genre> genres = new HashSet<>();
     private final Set<Long> likes = new HashSet<>();
 
     public void addLike(Long userId) {
