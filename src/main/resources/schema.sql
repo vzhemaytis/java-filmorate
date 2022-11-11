@@ -33,6 +33,7 @@ create table if not exists FILMS
     FILM_NAME    CHARACTER VARYING(50) not null,
     DESCRIPTION  CHARACTER VARYING(200),
     RELEASE_DATE DATE                  not null,
+    DURATION     INTEGER,
     MPA_ID       INTEGER,
     constraint "FILMS_pk"
     primary key (FILM_ID),
