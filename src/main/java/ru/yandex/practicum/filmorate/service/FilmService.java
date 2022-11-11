@@ -19,13 +19,11 @@ public class FilmService {
     }
 
     public Film addNewFilm(Film film) {
-        filmStorage.addNewFilm(film);
-        return film;
+        return filmStorage.addNewFilm(film);
     }
 
     public Film updateFilm(Film film) {
-        filmStorage.updateFilm(film);
-        return film;
+        return filmStorage.updateFilm(film);
     }
 
     public Film findFilm(Long id) {
