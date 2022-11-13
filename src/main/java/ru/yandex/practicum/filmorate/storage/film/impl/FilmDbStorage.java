@@ -85,22 +85,21 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film findFilm(Long id) {
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from FILMS where FILM_ID = ?", id);
-        if (filmRows.next()) {
-            Film film = Film.builder()
-                    .id(filmRows.getLong("FILM_ID"))
-                    .name(filmRows.getString("FILM_NAME"))
-                    .description(filmRows.getString("DESCRIPTION"))
-                    .releaseDate(Objects.requireNonNull(filmRows.getDate("RELEASE_DATE")).toLocalDate())
-                    .duration(filmRows.getInt("DURATION"))
-                    .rate(filmRows.getInt("RATE"))
-                    .mpa(mpaStorage.findMpa(filmRows.getInt("MPA_ID")))
-                    .genres(filmGenreStorage.getFilmGenres(filmRows.getLong("FILM_ID")))
-                    .build();
-            log.info("Найден фильм: {} {}", film.getId(), film.getName());
-            return film;
-        } else {
+        if (!filmRows.next()) {
             throw new EntityNotFoundException(String.format("%s with id= %s not found", Film.class, id));
         }
+        Film film = Film.builder()
+                .id(filmRows.getLong("FILM_ID"))
+                .name(filmRows.getString("FILM_NAME"))
+                .description(filmRows.getString("DESCRIPTION"))
+                .releaseDate(Objects.requireNonNull(filmRows.getDate("RELEASE_DATE")).toLocalDate())
+                .duration(filmRows.getInt("DURATION"))
+                .rate(filmRows.getInt("RATE"))
+                .mpa(mpaStorage.findMpa(filmRows.getInt("MPA_ID")))
+                .genres(filmGenreStorage.getFilmGenres(filmRows.getLong("FILM_ID")))
+                .build();
+        log.info("Найден фильм: {} {}", film.getId(), film.getName());
+        return film;
     }
 
     @Override
@@ -135,6 +134,7 @@ public class FilmDbStorage implements FilmStorage {
                 .description(rs.getString("DESCRIPTION"))
                 .releaseDate(rs.getDate("RELEASE_DATE").toLocalDate())
                 .duration(rs.getInt("DURATION"))
+                .rate(rs.getInt("RATE"))
                 .mpa(mpaStorage.findMpa(rs.getInt("MPA_ID")))
                 .genres(filmGenreStorage.getFilmGenres(rs.getLong("FILM_ID")))
                 .build();

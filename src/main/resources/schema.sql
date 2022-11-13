@@ -12,7 +12,6 @@ create table if not exists FRIENDS
 (
     USER_ID   LONG not null,
     FRIEND_ID LONG not null,
-    STATUS    BOOLEAN not null,
     constraint "FRIENDS_pk"
         primary key (USER_ID, FRIEND_ID),
     constraint "FRIENDS_USERS_1_fk"

@@ -34,12 +34,14 @@ public class UserController {
 
     @PostMapping
     public User addNewUser(@RequestBody @NotNull @Valid User user) {
+        userNameCheck(user);
         log.info("add new user - " + user);
         return userService.addNewUser(user);
     }
 
     @PutMapping
     public User updateUser(@RequestBody @NotNull @Valid User user) {
+        userNameCheck(user);
         log.info("update user - " + user);
         return userService.updateUser(user);
     }
@@ -69,6 +71,12 @@ public class UserController {
                                      @PathVariable("otherId") Long otherId) {
         log.info("get list of common friends of users with id" + id + " and " + otherId);
         return userService.getCommonFriends(id, otherId);
+    }
+
+    private void userNameCheck(User user) {
+        if (user.getName() == null || user.getName().isEmpty()) { // Name check
+            user.setName(user.getLogin());
+        }
     }
 
 }

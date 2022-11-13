@@ -22,7 +22,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User addNewUser(User user) {
-        userNameCheck(user);
         user.setId(getUserId());
         users.put(user.getId(), user);
         return user;
@@ -33,7 +32,6 @@ public class InMemoryUserStorage implements UserStorage {
         if (users.get(user.getId()) == null) {
             throw new EntityNotFoundException(String.format("%s with id= %s not found", User.class, user.getId()));
         }
-        userNameCheck(user);
         users.put(user.getId(), user);
         return user;
     }
@@ -96,12 +94,4 @@ public class InMemoryUserStorage implements UserStorage {
     private long getUserId() {
         return userId++;
     }
-
-    private void userNameCheck(User user) {
-        if (user.getName() == null || user.getName().isEmpty()) { // Name check
-            user.setName(user.getLogin());
-        }
-    }
-
-
 }

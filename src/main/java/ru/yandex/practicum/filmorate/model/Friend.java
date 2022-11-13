@@ -4,9 +4,11 @@ import lombok.Data;
 
 @Data
 public class Friend {
-
     private Integer userId;
     private Integer friendId;
-    private Boolean isAccepted;
 
+    public Friend(Integer userId, Integer friendId) {
+        this.userId = userId;
+        this.friendId = friendId;
+    }
 }
