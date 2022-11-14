@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.validator.ReleaseDateValid;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -26,7 +25,7 @@ public class Film {
     @NotNull(message = "Mpa should be not null")
     private Mpa mpa;
     private Set<Genre> genres;
-    private final Set<Long> likes = new HashSet<>();
+    private Set<Long> likes;
 
     public void addLike(Long userId) {
         likes.add(userId);

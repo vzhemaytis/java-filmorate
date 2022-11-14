@@ -18,6 +18,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @Primary
@@ -35,7 +37,9 @@ public class UserDbStorage implements UserStorage {
     @Override
     public List<User> getUsers() {
         String sql = "select * from USERS order by USER_ID";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs));
+        List<User> users =  jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs));
+        users.forEach(user -> user.setFriends(getFriendsIds(user.getId())));
+        return users;
     }
 
     @Override
@@ -81,6 +85,7 @@ public class UserDbStorage implements UserStorage {
                 .login(filmRows.getString("LOGIN"))
                 .name(filmRows.getString("USER_NAME"))
                 .birthday(Objects.requireNonNull(filmRows.getDate("BIRTHDAY")).toLocalDate())
+                .friends(getFriendsIds(filmRows.getLong("USER_ID")))
                 .build();
         log.info("Найден юзер с id: {}", user.getId());
         return user;
@@ -123,5 +128,9 @@ public class UserDbStorage implements UserStorage {
                 .name(rs.getString("USER_NAME"))
                 .birthday(rs.getDate("BIRTHDAY").toLocalDate())
                 .build();
+    }
+
+    private Set<Long> getFriendsIds(Long id) {
+        return getUserFriends(id).stream().map(User::getId).collect(Collectors.toSet());
     }
 }

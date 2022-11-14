@@ -97,6 +97,7 @@ public class FilmDbStorage implements FilmStorage {
                 .rate(filmRows.getInt("RATE"))
                 .mpa(mpaStorage.findMpa(filmRows.getInt("MPA_ID")))
                 .genres(filmGenreStorage.getFilmGenres(filmRows.getLong("FILM_ID")))
+                .likes(likeStorage.getLikes(filmRows.getLong("FILM_ID")))
                 .build();
         log.info("Найден фильм: {} {}", film.getId(), film.getName());
         return film;
@@ -137,6 +138,7 @@ public class FilmDbStorage implements FilmStorage {
                 .rate(rs.getInt("RATE"))
                 .mpa(mpaStorage.findMpa(rs.getInt("MPA_ID")))
                 .genres(filmGenreStorage.getFilmGenres(rs.getLong("FILM_ID")))
+                .likes(likeStorage.getLikes(rs.getLong("FILM_ID")))
                 .build();
     }
 }

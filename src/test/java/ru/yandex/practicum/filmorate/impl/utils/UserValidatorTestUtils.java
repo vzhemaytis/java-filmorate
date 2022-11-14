@@ -6,13 +6,13 @@ import java.time.LocalDate;
 
 public class UserValidatorTestUtils {
 
-    public static User getUserDto(int id, String email, String login, String name, LocalDate birthday) {
-        User user = new User();
-        user.setId(id);
-        user.setEmail(email);
-        user.setLogin(login);
-        user.setName(name);
-        user.setBirthday(birthday);
-        return user;
+    public static User getUserDto(Long id, String email, String login, String name, LocalDate birthday) {
+        return User.builder()
+                .id(id)
+                .email(email)
+                .login(login)
+                .name(name)
+                .birthday(birthday)
+                .build();
     }
 }
