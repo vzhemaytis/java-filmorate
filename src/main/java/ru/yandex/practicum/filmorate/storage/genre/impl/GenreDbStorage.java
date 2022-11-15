@@ -1,9 +1,8 @@
 package ru.yandex.practicum.filmorate.storage.genre.impl;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -15,7 +14,6 @@ import java.util.List;
 
 @Component
 @Primary
-@Slf4j
 public class GenreDbStorage implements GenreStorage {
 
     private final JdbcTemplate jdbcTemplate;
@@ -32,20 +30,16 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public Genre findGenre(Integer id) {
-        SqlRowSet genreRows = jdbcTemplate.queryForRowSet("select * from GENRES where GENRE_ID = ?", id);
-        if (genreRows.next()) {
-            Genre genre = new Genre(genreRows.getInt("GENRE_ID"),
-                                    genreRows.getString("GENRE_NAME"));
-            log.info("Найден жанр: {} {}", genre.getId(), genre.getName());
-            return genre;
-        } else {
+        try {
+            String sql = "select * from GENRES where GENRE_ID = ?";
+            return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> makeGenre(rs), id);
+        } catch (DataAccessException ex) {
             throw new EntityNotFoundException(String.format("%s with id= %s not found", Genre.class, id));
         }
     }
 
     private Genre makeGenre(ResultSet rs) throws SQLException {
-        Integer genreId = rs.getInt("GENRE_ID");
-        String genreName = rs.getString("GENRE_NAME");
-        return new Genre(genreId, genreName);
+        return new Genre(rs.getInt("GENRE_ID")
+                , rs.getString("GENRE_NAME"));
     }
 }

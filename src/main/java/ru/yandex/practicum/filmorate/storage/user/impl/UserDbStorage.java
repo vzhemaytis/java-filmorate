@@ -1,11 +1,10 @@
 package ru.yandex.practicum.filmorate.storage.user.impl;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -23,7 +22,6 @@ import java.util.stream.Collectors;
 
 @Component
 @Primary
-@Slf4j
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
@@ -75,20 +73,14 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User findUser(Long id) {
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from USERS where USER_ID = ?", id);
-        if (!filmRows.next()) {
+        try {
+            String sql = "select * from USERS where USER_ID = ?";
+            User user = jdbcTemplate.queryForObject(sql, (rs, rowNum) -> makeUser(rs), id);
+            user.setFriends(getFriendsIds(user.getId()));
+            return user;
+        } catch (DataAccessException ex) {
             throw new EntityNotFoundException(String.format("%s with id= %s not found", User.class, id));
         }
-        User user = User.builder()
-                .id(filmRows.getLong("USER_ID"))
-                .email(filmRows.getString("EMAIL"))
-                .login(filmRows.getString("LOGIN"))
-                .name(filmRows.getString("USER_NAME"))
-                .birthday(Objects.requireNonNull(filmRows.getDate("BIRTHDAY")).toLocalDate())
-                .friends(getFriendsIds(filmRows.getLong("USER_ID")))
-                .build();
-        log.info("Найден юзер с id: {}", user.getId());
-        return user;
     }
 
     @Override

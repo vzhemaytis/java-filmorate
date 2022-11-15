@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.validator.ReleaseDateValid;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Set;
 
 @Data
@@ -42,5 +43,18 @@ public class Film {
 
     public int getPopularity() {
         return likes.size();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Film film = (Film) o;
+        return id.equals(film.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

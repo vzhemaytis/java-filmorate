@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,8 +30,6 @@ class FilmStorageTest {
 
     @BeforeEach
     void setup(){
-        jdbcTemplate.update("runscript from 'src/test/resources/schema.sql'");
-        jdbcTemplate.update("runscript from 'src/test/resources/data.sql'");
         film = Film.builder()
                 .name("name")
                 .description("desc")
@@ -43,6 +42,8 @@ class FilmStorageTest {
     @AfterEach
     void deleteData() {
         jdbcTemplate.update("drop all objects");
+        jdbcTemplate.update("runscript from 'src/test/resources/schema.sql'");
+        jdbcTemplate.update("runscript from 'src/test/resources/data.sql'");
     }
 
 
@@ -50,24 +51,38 @@ class FilmStorageTest {
     @Test
     void addFilmTest() {
         Film addedFilm = filmStorage.addNewFilm(film);
-        assertEquals(1L, addedFilm.getId());
+        assertEquals(16L, addedFilm.getId());
     }
 
     @Test
     void updateFilmTest() {
         Film addedFilm = filmStorage.addNewFilm(film);
         addedFilm.setName("new name");
-        assertEquals(1L, addedFilm.getId());
+        assertEquals(16L, addedFilm.getId());
         Film updatedFilm = filmStorage.updateFilm(addedFilm);
-        assertEquals(1L, updatedFilm.getId());
+        assertEquals(16L, updatedFilm.getId());
 
     }
 
     @Test
     void findFilmTest() {
         filmStorage.addNewFilm(film);
-        Film findFilm = filmStorage.findFilm(1L);
+        Film findFilm = filmStorage.findFilm(16L);
         assertEquals("name", findFilm.getName());
+    }
+
+    @Test
+    void getPopularTest() {
+        List<Film> popular = filmStorage.getPopular(10);
+        assertEquals(4L, popular.get(0).getId());
+        assertEquals(1L, popular.get(1).getId());
+        assertEquals(10L, popular.get(2).getId());
+        assertEquals(13L, popular.get(3).getId());
+    }
+
+    @Test
+    void addLike() {
+        filmStorage.addLike(16L, 11L);
     }
 
 }

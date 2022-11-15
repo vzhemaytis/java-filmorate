@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = LoginValidator.class)
 public @interface LoginValid {
 
-    String message() default "error person data";
+    String message() default "error login data";
 
     Class<?>[] groups() default {};
 

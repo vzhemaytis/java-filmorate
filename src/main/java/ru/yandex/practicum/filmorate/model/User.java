@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.validator.LoginValid;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Set;
 
 @Data
@@ -36,5 +37,18 @@ public class User {
                     String.format("%s with id= %s not found in friends list of user with id= %s",
                             User.class, friendId, this.id));
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id == user.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

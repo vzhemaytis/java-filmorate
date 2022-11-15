@@ -1,11 +1,10 @@
 package ru.yandex.practicum.filmorate.storage.film.impl;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -23,7 +22,6 @@ import java.util.Objects;
 
 @Component
 @Primary
-@Slf4j
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
@@ -32,7 +30,10 @@ public class FilmDbStorage implements FilmStorage {
     private final LikeStorage likeStorage;
 
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaStorage mpaStorage, FilmGenreStorage filmGenreStorage, LikeStorage likeStorage) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate
+            , MpaStorage mpaStorage
+            , FilmGenreStorage filmGenreStorage
+            , LikeStorage likeStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.mpaStorage = mpaStorage;
         this.filmGenreStorage = filmGenreStorage;
@@ -40,7 +41,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getFilms() {
+    public List<Film> getFilms() {        
         String sql = "select * from FILMS order by FILM_ID";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs));
     }
@@ -84,23 +85,12 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film findFilm(Long id) {
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from FILMS where FILM_ID = ?", id);
-        if (!filmRows.next()) {
+        String sql = "select * from FILMS where FILM_ID = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> makeFilm(rs), id);
+        } catch (DataAccessException e) {
             throw new EntityNotFoundException(String.format("%s with id= %s not found", Film.class, id));
         }
-        Film film = Film.builder()
-                .id(filmRows.getLong("FILM_ID"))
-                .name(filmRows.getString("FILM_NAME"))
-                .description(filmRows.getString("DESCRIPTION"))
-                .releaseDate(Objects.requireNonNull(filmRows.getDate("RELEASE_DATE")).toLocalDate())
-                .duration(filmRows.getInt("DURATION"))
-                .rate(filmRows.getInt("RATE"))
-                .mpa(mpaStorage.findMpa(filmRows.getInt("MPA_ID")))
-                .genres(filmGenreStorage.getFilmGenres(filmRows.getLong("FILM_ID")))
-                .likes(likeStorage.getLikes(filmRows.getLong("FILM_ID")))
-                .build();
-        log.info("Найден фильм: {} {}", film.getId(), film.getName());
-        return film;
     }
 
     @Override
@@ -117,13 +107,13 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getPopular(Integer count) {
-        String sql = "select *\n" +
-                "from FILMS as F\n" +
-                "left join (select FILM_ID, count(USER_ID) as POPULARITY\n" +
-                "           from LIKES\n" +
-                "           group by FILM_ID\n" +
-                "           ) as P on F.FILM_ID = P.FILM_ID\n" +
-                "order by P.POPULARITY desc\n" +
+        String sql = "select * " +
+                "from FILMS as F " +
+                "left join (select FILM_ID, count(USER_ID) as POPULARITY " +
+                "           from LIKES " +
+                "           group by FILM_ID) as P " +
+                "           on F.FILM_ID = P.FILM_ID " +
+                "order by P.POPULARITY desc " +
                 "limit ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), count);
     }

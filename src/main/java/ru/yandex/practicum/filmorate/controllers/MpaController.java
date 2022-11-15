@@ -29,7 +29,7 @@ public class MpaController {
 
     @GetMapping("/{id}")
     public Mpa findMpa(@PathVariable("id") Integer id) {
-        log.info("get MPA rating with id= " + id);
+        log.info("get MPA rating with id = {}", id);
         return mpaService.findMpa(id);
     }
 }
