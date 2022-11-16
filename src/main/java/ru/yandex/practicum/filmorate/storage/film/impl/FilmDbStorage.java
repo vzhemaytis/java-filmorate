@@ -68,18 +68,22 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film updateFilm(Film film) {
-        String sqlQuery = "update FILMS set " +
-                "FILM_NAME = ?, DESCRIPTION = ?, RELEASE_DATE = ?, DURATION = ?, RATE = ?, MPA_ID = ? " +
-                "where FILM_ID = ?";
-        jdbcTemplate.update(sqlQuery
-                , film.getName()
-                , film.getDescription()
-                , film.getReleaseDate()
-                , film.getDuration()
-                , film.getRate()
-                , film.getMpa().getId()
-                , film.getId());
-        filmGenreStorage.addFilmGenre(film.getId(), film.getGenres());
+        try {
+            String sqlQuery = "update FILMS set " +
+                    "FILM_NAME = ?, DESCRIPTION = ?, RELEASE_DATE = ?, DURATION = ?, RATE = ?, MPA_ID = ? " +
+                    "where FILM_ID = ?";
+            jdbcTemplate.update(sqlQuery
+                    , film.getName()
+                    , film.getDescription()
+                    , film.getReleaseDate()
+                    , film.getDuration()
+                    , film.getRate()
+                    , film.getMpa().getId()
+                    , film.getId());
+            filmGenreStorage.addFilmGenre(film.getId(), film.getGenres());
+        } catch (DataAccessException ex) {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", Film.class, film.getId()));
+        }
         return findFilm(film.getId());
     }
 
@@ -102,6 +106,9 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void deleteLike(Long filmId, Long userId) {
         Film film = findFilm(filmId);
+        if(!film.getLikes().contains(userId)) {
+            throw new EntityNotFoundException(String.format("Like on film id = %s from user id = %s", filmId, userId));
+        }
         likeStorage.deleteLike(film.getId(), userId);
     }
 

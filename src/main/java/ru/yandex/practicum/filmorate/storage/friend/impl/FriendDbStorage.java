@@ -17,7 +17,7 @@ public class FriendDbStorage implements FriendStorage {
 
     @Override
     public void addFriend(Long id, Long friendId) {
-        String sqlQuery = "insert into FRIENDS (USER_ID, FRIEND_ID) " +
+        String sqlQuery = "merge into FRIENDS (USER_ID, FRIEND_ID) " +
                 "values (?, ?)";
         jdbcTemplate.update(sqlQuery, id, friendId);
     }

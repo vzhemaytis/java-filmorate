@@ -29,7 +29,7 @@ public class FilmGenresDbStorage implements FilmGenreStorage {
     public void addFilmGenre(Long filmId, Set<Genre> genres) {
         deleteFilmGenres(filmId);
         if (genres != null) {
-            String sqlQuery = "insert into FILM_GENRES(FILM_ID, GENRE_ID) " +
+            String sqlQuery = "merge into FILM_GENRES(FILM_ID, GENRE_ID) " +
                     "values (?, ?)";
             genres.forEach(genre -> jdbcTemplate.update(sqlQuery,
                     filmId, genre.getId()));
