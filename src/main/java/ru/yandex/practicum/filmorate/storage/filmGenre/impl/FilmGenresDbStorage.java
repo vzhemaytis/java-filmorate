@@ -1,8 +1,10 @@
 package ru.yandex.practicum.filmorate.storage.filmGenre.impl;
 
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.FilmGenre;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.filmGenre.FilmGenreStorage;
@@ -28,11 +30,15 @@ public class FilmGenresDbStorage implements FilmGenreStorage {
     @Override
     public void addFilmGenre(Long filmId, Set<Genre> genres) {
         deleteFilmGenres(filmId);
-        if (genres != null) {
-            String sqlQuery = "merge into FILM_GENRES(FILM_ID, GENRE_ID) " +
-                    "values (?, ?)";
-            genres.forEach(genre -> jdbcTemplate.update(sqlQuery,
-                    filmId, genre.getId()));
+        try {
+            if (genres != null) {
+                String sqlQuery = "merge into FILM_GENRES(FILM_ID, GENRE_ID) " +
+                        "values (?, ?)";
+                genres.forEach(genre -> jdbcTemplate.update(sqlQuery,
+                        filmId, genre.getId()));
+            }
+        } catch (DataAccessException ex) {
+            throw new EntityNotFoundException(String.format("At least one of genres from %s not found", genres));
         }
     }
 

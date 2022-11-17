@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.BadRequestException;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.friend.FriendStorage;
@@ -85,6 +86,9 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void addFriend(Long id, Long friendId) {
+        if (Objects.equals(id, friendId)) {
+            throw new BadRequestException("User could not be friend to himself");
+        }
         User user = findUser(id);
         User friend = findUser(friendId);
         friendStorage.addFriend(user.getId(), friend.getId());
@@ -92,6 +96,9 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void deleteFriend(Long id, Long friendId) {
+        if (Objects.equals(id, friendId)) {
+            throw new BadRequestException("User could not be friend to himself");
+        }
         User user = findUser(id);
         User friend = findUser(friendId);
         friendStorage.deleteFriend(user.getId(), friend.getId());
