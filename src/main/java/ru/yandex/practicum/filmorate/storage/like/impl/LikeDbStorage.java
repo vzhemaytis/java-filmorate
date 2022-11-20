@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.like.impl;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -13,7 +12,6 @@ import java.util.Set;
 
 @Component
 @Primary
-@Slf4j
 public class LikeDbStorage implements LikeStorage {
 
     private final JdbcTemplate jdbcTemplate;
