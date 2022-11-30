@@ -19,7 +19,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     private long filmId = 1;
     private final Map<Long, Film> films = new HashMap<>();
 
-    private long getFilmId() {
+    private Long getFilmId() {
         return filmId++;
     }
 
@@ -35,17 +35,19 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void addNewFilm(Film film) {
+    public Film addNewFilm(Film film) {
         film.setId(getFilmId());
         films.put(film.getId(), film);
+        return film;
     }
 
     @Override
-    public void updateFilm(Film film) {
+    public Film updateFilm(Film film) {
         if (films.get(film.getId()) == null) {
             throw new EntityNotFoundException(String.format("%s with id= %s not found", Film.class, film.getId()));
         }
         films.put(film.getId(), film);
+        return film;
     }
 
     @Override

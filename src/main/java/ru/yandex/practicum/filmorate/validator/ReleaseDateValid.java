@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = ReleaseDateValidator.class)
 public @interface ReleaseDateValid {
 
-    String message() default "error person data";
+    String message() default "error release date data";
 
     Class<?>[] groups() default {};
 

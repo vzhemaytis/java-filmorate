@@ -22,7 +22,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public User findUser(@PathVariable("id") Long id) {
-        log.info("get user with id= " + id);
+        log.info("get user with id = {}", id);
         return userService.findUser(id);
     }
 
@@ -34,41 +34,49 @@ public class UserController {
 
     @PostMapping
     public User addNewUser(@RequestBody @NotNull @Valid User user) {
-        log.info("add new user - " + user);
+        userNameCheck(user);
+        log.info("add new user - {}", user);
         return userService.addNewUser(user);
     }
 
     @PutMapping
     public User updateUser(@RequestBody @NotNull @Valid User user) {
-        log.info("update user - " + user);
+        userNameCheck(user);
+        log.info("update user - {}", user);
         return userService.updateUser(user);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable("id") Long id,
                           @PathVariable("friendId") Long friendId) {
-        log.info("add friendship to users with id" + id + " and " + friendId);
+        log.info("add friendship to user with id = {} and friendId = {}", id, friendId);
         userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public void deleteFriend(@PathVariable("id") Long id,
                           @PathVariable("friendId") Long friendId) {
-        log.info("delete friendship from users with id" + id + " and " + friendId);
+        log.info("delete friendship from user with id = {} and friendId = {}", id, friendId);
         userService.deleteFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
     public List<User> getUserFriends(@PathVariable("id") Long id) {
-        log.info("get friends list of user with id " + id);
+        log.info("get friends list of user with id = {}", id);
         return userService.getUserFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getUserFriends(@PathVariable("id") Long id,
                                      @PathVariable("otherId") Long otherId) {
-        log.info("get list of common friends of users with id" + id + " and " + otherId);
+        log.info("get list of common friends of users with id = {} and id = {}", id, otherId);
         return userService.getCommonFriends(id, otherId);
+    }
+
+    private void userNameCheck(User user) {
+        if (user.getName() == null || user.getName().isEmpty()) {
+            user.setName(user.getLogin());
+        }
     }
 
 }

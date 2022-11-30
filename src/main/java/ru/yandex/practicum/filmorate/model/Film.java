@@ -1,17 +1,19 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.Builder;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.validator.ReleaseDateValid;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Data
+@Builder
 public class Film {
-    private long id;
+    private Long id;
     @NotBlank(message = "name should be not blank")
     private String name;
     @Size(max = 200, message = "description should be shorter 200 letters")
@@ -20,7 +22,11 @@ public class Film {
     private LocalDate releaseDate;
     @Positive(message = "duration should be positive")
     private int duration;
-    private final Set<Long> likes = new HashSet<>();
+    private int rate;
+    @NotNull(message = "Mpa should be not null")
+    private Mpa mpa;
+    private Set<Genre> genres;
+    private Set<Long> likes;
 
     public void addLike(Long userId) {
         likes.add(userId);
@@ -37,5 +43,18 @@ public class Film {
 
     public int getPopularity() {
         return likes.size();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Film film = (Film) o;
+        return id.equals(film.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
