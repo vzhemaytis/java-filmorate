@@ -259,4 +259,13 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
                 () -> assertEquals(List.of(commonFriend), commonFriends)
         );
     }
+
+    @Test
+    @DisplayName("20) Проверка получения ошибки при получении ленты событий несуществующего пользователя")
+    void getFeedTest() {
+        assertThrows(
+                EntityNotFoundException.class,
+                () -> userStorage.getFeed(1L)
+        );
+    }
 }

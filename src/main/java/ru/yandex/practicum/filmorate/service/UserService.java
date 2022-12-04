@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -46,4 +47,5 @@ public class UserService {
         return userStorage.getCommonFriends(id, otherId);
     }
 
+    public List<Event> getFeed(Long id) { return userStorage.getFeed(id); }
 }

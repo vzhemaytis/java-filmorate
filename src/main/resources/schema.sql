@@ -6,8 +6,8 @@ create table if not exists USERS
     USER_NAME CHARACTER VARYING(50) not null,
     BIRTHDAY  DATE                  not null,
     constraint "USERS_pk"
-    primary key (USER_ID)
-    );
+        primary key (USER_ID)
+);
 create table if not exists FRIENDS
 (
     USER_ID   LONG not null,
@@ -21,11 +21,11 @@ create table if not exists FRIENDS
 );
 create table if not exists MPA_RATING
 (
-    MPA_ID INTEGER auto_increment,
+    MPA_ID   INTEGER auto_increment,
     MPA_NAME CHARACTER VARYING(10) not null,
     constraint "MPA_RATING_pk"
-    primary key (MPA_ID)
-    );
+        primary key (MPA_ID)
+);
 create table if not exists FILMS
 (
     FILM_ID      LONG auto_increment,
@@ -36,20 +36,20 @@ create table if not exists FILMS
     RATE         INTEGER,
     MPA_ID       INTEGER,
     constraint "FILMS_pk"
-    primary key (FILM_ID),
+        primary key (FILM_ID),
     constraint FILMS_MPA_RATING_MPA_ID_FK
-    foreign key (MPA_ID) references MPA_RATING
-    );
+        foreign key (MPA_ID) references MPA_RATING
+);
 create table if not exists GENRES
 (
     GENRE_ID   INTEGER auto_increment,
     GENRE_NAME CHARACTER VARYING(30) not null,
     constraint "GENRES_pk"
-    primary key (GENRE_ID)
-    );
+        primary key (GENRE_ID)
+);
 create table if not exists FILM_GENRES
 (
-    FILM_ID  LONG not null,
+    FILM_ID  LONG    not null,
     GENRE_ID INTEGER not null,
     constraint "FILM_GENRES_pk"
         primary key (FILM_ID, GENRE_ID),
@@ -67,5 +67,18 @@ create table if not exists LIKES
     constraint "LIKES_1_fk"
         foreign key (FILM_ID) references FILMS,
     constraint "LIKES_2_fk"
+        foreign key (USER_ID) references USERS
+);
+create table if not exists EVENTS
+(
+    EVENT_ID   LONG auto_increment,
+    USER_ID    LONG                  not null,
+    EVENT_TYPE CHARACTER VARYING(10) not null,
+    OPERATION  CHARACTER VARYING(10) not null,
+    ENTITY_ID  LONG                  not null,
+    TIMESTAMP  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    constraint "EVENTS_pk"
+        primary key (EVENT_ID),
+    constraint "EVENTS_fk"
         foreign key (USER_ID) references USERS
 );
