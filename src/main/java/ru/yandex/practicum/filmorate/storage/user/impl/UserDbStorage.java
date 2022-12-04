@@ -8,7 +8,9 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.BadRequestException;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.friend.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -27,10 +29,12 @@ public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final FriendStorage friendStorage;
+    private final EventStorage eventStorage;
 
-    public UserDbStorage(JdbcTemplate jdbcTemplate, FriendStorage friendStorage) {
+    public UserDbStorage(JdbcTemplate jdbcTemplate, FriendStorage friendStorage, EventStorage eventStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.friendStorage = friendStorage;
+        this.eventStorage = eventStorage;
     }
 
     @Override
@@ -137,6 +141,12 @@ public class UserDbStorage implements UserStorage {
         } catch (DataAccessException ex) {
             throw new EntityNotFoundException(String.format("%s with id= %s not found", User.class, userId));
         }
+    }
+
+    @Override
+    public List<Event> getFeed(Long id) {
+        User user = findUser(id);
+        return eventStorage.getFeed(user.getId());
     }
 
     private User makeUser(ResultSet rs) throws SQLException {
