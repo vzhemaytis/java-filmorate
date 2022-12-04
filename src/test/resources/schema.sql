@@ -76,7 +76,7 @@ create table if not exists EVENTS
     EVENT_TYPE CHARACTER VARYING(10) not null,
     OPERATION  CHARACTER VARYING(10) not null,
     ENTITY_ID  LONG                  not null,
-    TIMESTAMP  TIMESTAMP             not null,
+    TIMESTAMP  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     constraint "EVENTS_pk"
         primary key (EVENT_ID),
     constraint "EVENTS_fk"
