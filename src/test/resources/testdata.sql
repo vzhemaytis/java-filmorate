@@ -50,3 +50,10 @@ VALUES (1, 1),
        (10, 10),
        (10, 9),
        (13, 9);
+INSERT INTO DIRECTORS (DIRECTOR_ID, DIRECTOR_NAME)
+VALUES (1, 'A'),
+       (2, 'B'),
+       (3, 'C'),
+       (4, 'D'),
+       (5, 'E'),
+       (6, 'F');
