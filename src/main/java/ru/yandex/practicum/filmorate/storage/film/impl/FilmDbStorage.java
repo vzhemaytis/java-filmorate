@@ -125,6 +125,34 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), count);
     }
 
+    @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId){
+        String sql = "select * from FILMS " +
+                "left join (select FILM_ID, count(USER_ID) as POPULARITY " +
+                "           from LIKES " +
+                "           group by FILM_ID) as P " +
+                "           on F.FILM_ID = P.FILM_ID " +
+        "where FILM_ID in " +
+        "(select FILM_ID from LIKES as USER where USER_ID = ? " +
+                "join (select FILM_ID from LIKES as FRIEND where USER_ID = ?) on USER.FILM_ID = FRIEND.FILM_ID as F) " +
+        "order by P.POPULARITY desc " ;
+        return jdbcTemplate.query(sql, ((rs, rowNum) -> makeFilm(rs)), userId, friendId);
+    }
+
+    @Override
+    public void deleteFilm(Long filmId) {
+        String sql1 = "delete from FILM_GENRES where FILM_ID = ?";
+        String sql2 = "delete from LIKES where FILM_ID = ?";
+        String sql3 = "delete from FILMS where FILM_ID = ?";
+        try{
+            jdbcTemplate.update(sql1, filmId);
+            jdbcTemplate.update(sql2, filmId);
+            jdbcTemplate.update(sql3, filmId);
+        } catch (DataAccessException e) {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", Film.class, filmId));
+        }
+    }
+
     private Film makeFilm(ResultSet rs) throws SQLException {
         return Film.builder()
                 .id(rs.getLong("FILM_ID"))
