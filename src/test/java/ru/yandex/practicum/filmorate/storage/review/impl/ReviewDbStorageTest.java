@@ -1,9 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.review.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,11 +25,15 @@ public class ReviewDbStorageTest extends ReviewStorageTest<ReviewDbStorage> {
 
     @BeforeEach
     void setup() {
+        jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
+
+    }
+
+    @AfterEach
+    void deleteData() {
         jdbcTemplate.update("drop all objects");
         jdbcTemplate.update("runscript from 'src/test/resources/schema.sql'");
         jdbcTemplate.update("runscript from 'src/test/resources/data.sql'");
-        jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
-
     }
 
     @Test
