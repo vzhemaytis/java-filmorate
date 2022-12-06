@@ -1,15 +1,3 @@
-DROP TABLE IF EXISTS films CASCADE;
-DROP TABLE IF EXISTS mpa CASCADE;
-DROP TABLE IF EXISTS genre CASCADE;
-DROP TABLE IF EXISTS genres CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
-DROP TABLE IF EXISTS friends CASCADE;
-DROP TABLE IF EXISTS likes CASCADE;
-DROP TABLE IF EXISTS FILM_GENRES CASCADE;
-DROP TABLE IF EXISTS reviews_reactions CASCADE;
-DROP TABLE IF EXISTS reviews CASCADE;
-
-
 create table if not exists USERS
 (
     USER_ID   LONG auto_increment,
@@ -89,7 +77,6 @@ CREATE TABLE IF NOT EXISTS reviews
     content     text    NOT NULL,
     is_positive boolean NOT NULL
 );
--- CREATE UNIQUE INDEX  IF NOT EXISTS REVIEWS_FILM_ID_USER_ID ON reviews (film_id, user_id);
 
 CREATE TABLE IF NOT EXISTS reviews_reactions
 (
@@ -98,5 +85,3 @@ CREATE TABLE IF NOT EXISTS reviews_reactions
     is_positive boolean NOT NULL,
     PRIMARY KEY (review_id, user_id)
 );
-
--- CREATE UNIQUE INDEX  IF NOT EXISTS REVIEWS_REACTIONS_FILM_ID_USER_ID ON reviews (review_id, user_id);

@@ -94,18 +94,18 @@ public class ReviewService {
 
         Long filmId = review.getFilmId();
         if (filmId == null) {
-            throw new RuntimeException("userId cannot be empty");
+            throw new RuntimeException("filmId cannot be empty");
         }
         filmStorage.findFilm(filmId);
 
         String content = review.getContent();
         if (content == null) {
-            throw new RuntimeException("userId cannot be empty");
+            throw new RuntimeException("content cannot be empty");
         }
 
         Boolean isPositive = review.getIsPositive();
         if (isPositive == null) {
-            throw new RuntimeException("userId cannot be empty");
+            throw new RuntimeException("isPositive cannot be empty");
         }
     }
 

@@ -2,15 +2,10 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
 
-import javax.validation.constraints.Positive;
-
-
 @Data
-//@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Review {
-//    @NonNull
     private Long reviewId;
     @NonNull
     private Long userId;
