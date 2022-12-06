@@ -131,6 +131,32 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), count);
     }
 
+    @Override
+    public List<Film> getFilmsByDirectorSortedByType(Integer directorId, String sortType) {
+        String orderBy = null;
+        if(sortType.equals("year")) {
+            orderBy = "F.RELEASE_DATE";
+        } else if(sortType.equals("likes")){
+            orderBy = "P.POPULARITY desc";
+        }
+        String sql = "select * from FILM_DIRECTORS FD " +
+                "left join FILMS F on F.FILM_ID = FD.FILM_ID " +
+                "left join (select FILM_ID, count(USER_ID) as POPULARITY " +
+                "           from LIKES " +
+                "           group by FILM_ID) as P " +
+                "           on F.FILM_ID = P.FILM_ID " +
+                "where FD.DIRECTOR_ID =?" +
+                "order by " + orderBy;
+        List<Film> result = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), directorId);
+        if(result.size() > 0) {
+            return result;
+        } else {
+            throw new EntityNotFoundException(
+                    String.format("%s with director_id= %s not found", Film.class, directorId)
+            );
+        }
+    }
+
     private Film makeFilm(ResultSet rs) throws SQLException {
         Long filmId = rs.getLong("FILM_ID");
         return Film.builder()
