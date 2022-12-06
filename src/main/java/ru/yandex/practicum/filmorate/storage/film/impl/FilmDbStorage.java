@@ -127,16 +127,22 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getCommonFilms(Long userId, Long friendId){
-        String sql = "select * from FILMS " +
-                "left join (select FILM_ID, count(USER_ID) as POPULARITY " +
-                "           from LIKES " +
-                "           group by FILM_ID) as P " +
-                "           on F.FILM_ID = P.FILM_ID " +
-        "where FILM_ID in " +
-        "(select FILM_ID from LIKES as USER where USER_ID = ? " +
-                "join (select FILM_ID from LIKES as FRIEND where USER_ID = ?) on USER.FILM_ID = FRIEND.FILM_ID as F) " +
-        "order by P.POPULARITY desc " ;
-        return jdbcTemplate.query(sql, ((rs, rowNum) -> makeFilm(rs)), userId, friendId);
+        String sql =
+                "with COMMON (COMMONID) as " +
+                        "( " +
+                        "   select distinct FILM_ID from LIKES where USER_ID = ? " +
+                        "   intersect " +
+                        "   select distinct FILM_ID from LIKES where USER_ID = ? " +
+                        ") " +
+                        "select FILMS.FILM_ID, FILMS.FILM_NAME, FILMS.DESCRIPTION, FILMS.RELEASE_DATE, FILMS.DURATION, FILMS.RATE, " +
+                        "FILMS.MPA_ID " +
+                        "from FILMS " +
+                        "inner join MPA_RATING on MPA_RATING.MPA_ID = FILMS.RATE " +
+                        "where FILM_ID in (select COMMONID from COMMON) " +
+                        "group by FILMS.FILM_ID " +
+                        "order by FILMS.RATE desc;";
+        List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), userId, friendId);
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), userId, friendId);
     }
 
     @Override
