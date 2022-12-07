@@ -20,31 +20,31 @@ public class DirectorController {
 
     @PostMapping
     public Director addToFilms(@Valid @RequestBody Director director) {
-        log.debug("Добавлен режиссер: " + director);
+        log.debug("add new director - {}", director);
         return directorService.addDirector(director);
     }
 
     @PutMapping
     public Director putToFilm(@Valid @RequestBody Director director) {
-        log.debug("Данные режиссера: " + director.getName() + "обновлен");
+        log.debug("update director - {}", director);
         return directorService.updateDirector(director);
     }
 
     @GetMapping
     public List<Director> getAllDirectors() {
-        log.debug("Запрошены режиссеры");
+        log.debug("get list of directors");
         return directorService.getDirectors();
     }
 
     @GetMapping("/{id}")
     public Director getDirector(@PathVariable Long id) {
-        log.debug("Запрошены режиссер " + id);
+        log.debug("get director with id = {} ", id);
         return directorService.getDirector(id);
     }
 
     @DeleteMapping("/{id}")
     public void deleteDirector(@PathVariable Long id) {
         directorService.deleteDirector(id);
-        log.debug("Удален режиссер " + id);
+        log.debug("delete director with id = {}", id);
     }
 }
