@@ -41,4 +41,8 @@ public class FilmService {
     public List<Film> getPopular(Integer count) {
         return filmStorage.getPopular(count);
     }
+
+    public List<Film> getFilmsByDirectorSortedByYear(Integer directorId, String sortType) {
+        return filmStorage.getFilmsByDirectorSortedByType(directorId, sortType);
+    }
 }

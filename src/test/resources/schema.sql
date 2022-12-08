@@ -69,6 +69,7 @@ create table if not exists LIKES
     constraint "LIKES_2_fk"
         foreign key (USER_ID) references USERS
 );
+<<<<<<< add-reviews
 
 CREATE TABLE IF NOT EXISTS reviews
 (
@@ -86,4 +87,23 @@ CREATE TABLE IF NOT EXISTS reviews_reactions
     user_id    bigint  NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
     is_positive boolean NOT NULL,
     PRIMARY KEY (review_id, user_id)
+=======
+create table if not exists DIRECTORS
+(
+    DIRECTOR_ID LONG auto_increment,
+    DIRECTOR_NAME CHARACTER VARYING not null,
+    constraint "DIRECTORS_LIST_pk"
+        primary key (DIRECTOR_ID)
+);
+create table if not exists FILM_DIRECTORS
+(
+    FILM_ID  LONG not null,
+    DIRECTOR_ID INTEGER not null,
+    constraint "FILM_DIRECTORS_pk"
+        primary key (FILM_ID, DIRECTOR_ID),
+    constraint "FILM_DIRECTORS_1_fk"
+        foreign key (FILM_ID) references FILMS,
+    constraint "FILM_DIRECTORS_2_fk"
+        foreign key (DIRECTOR_ID) references DIRECTORS
+>>>>>>> develop
 );
