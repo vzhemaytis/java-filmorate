@@ -2,9 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
@@ -31,16 +29,14 @@ public class ReviewService {
 
 
     public long addReview(Review review) {
-        validateReview(review);
+        userStorage.findUser(review.getUserId());
+        filmStorage.findFilm(review.getFilmId());
+
         return reviewStorage.addReview(review);
     }
 
     public Review getReviewById(long reviewId) {
-        try {
-            return reviewStorage.getReviewById(reviewId);
-        } catch (DataAccessException e) {
-            throw new EntityNotFoundException(String.format("Ревью с id = %d не найдено", reviewId));
-        }
+        return reviewStorage.getReviewById(reviewId);
     }
 
     public void checkIfReviewExists(Long reviewId) {
@@ -52,8 +48,9 @@ public class ReviewService {
         reviewStorage.deleteReviewById(reviewId);
     }
 
-    public Review updateReviewById(Review review) {
-        validateReview(review);
+    public Review updateReview(Review review) {
+        userStorage.findUser(review.getUserId());
+        filmStorage.findFilm(review.getFilmId());
         reviewStorage.updateReviewById(review);
         return reviewStorage.getReviewById(review.getReviewId());
     }
@@ -78,35 +75,6 @@ public class ReviewService {
         checkIfReviewExists(reviewId);
         userStorage.findUser(userId);
         reviewStorage.deleteLikeOrDislikeToReview(reviewId, userId);
-    }
-
-    public void validateReview(Review review) {
-        Long reviewId = review.getReviewId();
-        if (reviewId != null) {
-            checkIfReviewExists(reviewId);
-        }
-
-        Long userId = review.getUserId();
-        if (userId == null) {
-            throw new RuntimeException("userId cannot be empty");
-        }
-        userStorage.findUser(userId);
-
-        Long filmId = review.getFilmId();
-        if (filmId == null) {
-            throw new RuntimeException("filmId cannot be empty");
-        }
-        filmStorage.findFilm(filmId);
-
-        String content = review.getContent();
-        if (content == null) {
-            throw new RuntimeException("content cannot be empty");
-        }
-
-        Boolean isPositive = review.getIsPositive();
-        if (isPositive == null) {
-            throw new RuntimeException("isPositive cannot be empty");
-        }
     }
 
 }

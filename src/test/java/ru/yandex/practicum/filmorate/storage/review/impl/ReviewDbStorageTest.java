@@ -58,7 +58,7 @@ public class ReviewDbStorageTest extends ReviewStorageTest<ReviewDbStorage> {
         long userId = 1L;
         long filmId = 10L;
 
-        assertThrows(EmptyResultDataAccessException.class, () -> {
+        assertThrows(ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException.class, () -> {
             reviewStorage.getReviewById(idToCreate);
         });
         review = Review.builder()
@@ -86,7 +86,7 @@ public class ReviewDbStorageTest extends ReviewStorageTest<ReviewDbStorage> {
         Review review = reviewStorage.getReviewById(idToDelete);
         assertEquals(review.getReviewId(), idToDelete);
         reviewStorage.deleteReviewById(idToDelete);
-        assertThrows(EmptyResultDataAccessException.class, () -> {
+        assertThrows(ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException.class, () -> {
             reviewStorage.getReviewById(idToDelete);
         });
     }

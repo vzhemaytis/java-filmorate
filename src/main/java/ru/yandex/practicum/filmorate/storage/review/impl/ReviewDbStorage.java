@@ -1,10 +1,12 @@
 package ru.yandex.practicum.filmorate.storage.review.impl;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 
@@ -48,7 +50,11 @@ public class ReviewDbStorage implements ReviewStorage {
                 "WHERE r.review_id = ? " +
                 "GROUP BY r.review_id, r.film_id, r.user_id, r.content, r.is_positive;";
 
-        return jdbcTemplate.queryForObject(sqlQuery, this::makeReview, id);
+        try {
+            return jdbcTemplate.queryForObject(sqlQuery, this::makeReview, id);
+        } catch (DataAccessException e) {
+            throw new EntityNotFoundException(String.format("Ревью с id = %d не найдено", id));
+        }
     }
 
     public void updateReviewById(Review review) {

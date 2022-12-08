@@ -25,7 +25,7 @@ public class ReviewController {
 
     @PutMapping
     public Review updateReviewById(@Valid @RequestBody Review review) {
-        return reviewService.updateReviewById(review);
+        return reviewService.updateReview(review);
     }
 
     @PutMapping("{id}/like/{userId}")
