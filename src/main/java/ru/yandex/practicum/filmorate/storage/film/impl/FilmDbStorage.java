@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.filmDirector.FilmDirectorStorage;
 import ru.yandex.practicum.filmorate.storage.filmGenre.FilmGenreStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
@@ -27,16 +28,19 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final MpaStorage mpaStorage;
     private final FilmGenreStorage filmGenreStorage;
+    private final FilmDirectorStorage filmDirectorsStorage;
     private final LikeStorage likeStorage;
 
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate
             , MpaStorage mpaStorage
             , FilmGenreStorage filmGenreStorage
+            , FilmDirectorStorage filmDirectorStorage
             , LikeStorage likeStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.mpaStorage = mpaStorage;
         this.filmGenreStorage = filmGenreStorage;
+        this.filmDirectorsStorage = filmDirectorStorage;
         this.likeStorage = likeStorage;
     }
 
@@ -63,6 +67,7 @@ public class FilmDbStorage implements FilmStorage {
         }, keyHolder);
         Long filmId = Objects.requireNonNull(keyHolder.getKey()).longValue();
         filmGenreStorage.addFilmGenre(filmId, film.getGenres());
+        filmDirectorsStorage.addFilmDirectors(filmId, film.getDirectors());
         return findFilm(filmId);
     }
 
@@ -81,6 +86,7 @@ public class FilmDbStorage implements FilmStorage {
                     , film.getMpa().getId()
                     , film.getId());
             filmGenreStorage.addFilmGenre(film.getId(), film.getGenres());
+            filmDirectorsStorage.addFilmDirectors(film.getId(), film.getDirectors());
         } catch (DataAccessException ex) {
             throw new EntityNotFoundException(String.format("%s with id= %s not found", Film.class, film.getId()));
         }
@@ -125,17 +131,45 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), count);
     }
 
+    @Override
+    public List<Film> getFilmsByDirectorSortedByType(Integer directorId, String sortType) {
+        String orderBy = null;
+        if(sortType.equals("year")) {
+            orderBy = "F.RELEASE_DATE";
+        } else if(sortType.equals("likes")){
+            orderBy = "P.POPULARITY desc";
+        }
+        String sql = "select * from FILM_DIRECTORS FD " +
+                "left join FILMS F on F.FILM_ID = FD.FILM_ID " +
+                "left join (select FILM_ID, count(USER_ID) as POPULARITY " +
+                "           from LIKES " +
+                "           group by FILM_ID) as P " +
+                "           on F.FILM_ID = P.FILM_ID " +
+                "where FD.DIRECTOR_ID =?" +
+                "order by " + orderBy;
+        List<Film> result = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), directorId);
+        if(result.size() > 0) {
+            return result;
+        } else {
+            throw new EntityNotFoundException(
+                    String.format("%s with director_id= %s not found", Film.class, directorId)
+            );
+        }
+    }
+
     private Film makeFilm(ResultSet rs) throws SQLException {
+        Long filmId = rs.getLong("FILM_ID");
         return Film.builder()
-                .id(rs.getLong("FILM_ID"))
+                .id(filmId)
                 .name(rs.getString("FILM_NAME"))
                 .description(rs.getString("DESCRIPTION"))
                 .releaseDate(rs.getDate("RELEASE_DATE").toLocalDate())
                 .duration(rs.getInt("DURATION"))
                 .rate(rs.getInt("RATE"))
                 .mpa(mpaStorage.findMpa(rs.getInt("MPA_ID")))
-                .genres(filmGenreStorage.getFilmGenres(rs.getLong("FILM_ID")))
-                .likes(likeStorage.getLikes(rs.getLong("FILM_ID")))
+                .genres(filmGenreStorage.getFilmGenres(filmId))
+                .likes(likeStorage.getLikes(filmId))
+                .directors(filmDirectorsStorage.getFilmDirector(filmId))
                 .build();
     }
 }
