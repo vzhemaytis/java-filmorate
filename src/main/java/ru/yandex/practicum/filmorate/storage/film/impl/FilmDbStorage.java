@@ -45,7 +45,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getFilms() {        
+    public List<Film> getFilms() {
         String sql = "select * from FILMS order by FILM_ID";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs));
     }
@@ -112,7 +112,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void deleteLike(Long filmId, Long userId) {
         Film film = findFilm(filmId);
-        if(!film.getLikes().contains(userId)) {
+        if (!film.getLikes().contains(userId)) {
             throw new EntityNotFoundException(String.format("Like on film id = %s from user id = %s", filmId, userId));
         }
         likeStorage.deleteLike(film.getId(), userId);
@@ -134,9 +134,9 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getFilmsByDirectorSortedByType(Integer directorId, String sortType) {
         String orderBy = null;
-        if(sortType.equals("year")) {
+        if (sortType.equals("year")) {
             orderBy = "F.RELEASE_DATE";
-        } else if(sortType.equals("likes")){
+        } else if (sortType.equals("likes")) {
             orderBy = "P.POPULARITY desc";
         }
         String sql = "select * from FILM_DIRECTORS FD " +
@@ -148,12 +148,42 @@ public class FilmDbStorage implements FilmStorage {
                 "where FD.DIRECTOR_ID =?" +
                 "order by " + orderBy;
         List<Film> result = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), directorId);
-        if(result.size() > 0) {
+        if (result.size() > 0) {
             return result;
         } else {
             throw new EntityNotFoundException(
                     String.format("%s with director_id= %s not found", Film.class, directorId)
             );
+        }
+    }
+
+    @Override
+    public List<Film> search(String query, List<String> searchCriteria) {
+        try {
+            StringBuilder whereSql = new StringBuilder("");
+            if (searchCriteria.size() > 0) {
+                whereSql.append("where ");
+            }
+            if (searchCriteria.contains("title")) {
+                whereSql.append("F.FILM_NAME like '%").append(query.toLowerCase()).append("%'");
+            }
+            if (searchCriteria.contains("director")) {
+                if (whereSql.indexOf("%") != -1) {
+                    whereSql.append(" or ");
+                }
+                whereSql.append("D.DIRECTOR_NAME like '%").append(query.toLowerCase()).append("%'");
+            }
+            String sqlQuery = "select * from FILMS F " +
+                    "left join FILM_DIRECTORS FD on FD.FILM_ID = F.FILM_ID " +
+                    "left join DIRECTORS D on D.DIRECTOR_ID = FD.DIRECTOR_ID " +
+                    whereSql +
+                    " order by FILM_ID desc"
+                    ;
+
+            return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs));
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            throw new EntityNotFoundException("");
         }
     }
 

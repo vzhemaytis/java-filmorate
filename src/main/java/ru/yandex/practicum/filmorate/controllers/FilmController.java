@@ -70,4 +70,11 @@ public class FilmController {
         log.info("Get films by director sort by year");
         return filmService.getFilmsByDirectorSortedByYear(directorId, sortType);
     }
+
+    @GetMapping("/search")
+    public List<Film> search(@RequestParam(name = "query") String query,
+                             @RequestParam(name = "by") List<String> searchCriteria) {
+        log.info("Search {}, which contains {}", searchCriteria, query);
+        return filmService.search(query, searchCriteria);
+    }
 }
