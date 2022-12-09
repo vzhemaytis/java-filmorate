@@ -1,5 +1,3 @@
-drop all objects;
-
 create table if not exists USERS
 (
     USER_ID   LONG auto_increment,
