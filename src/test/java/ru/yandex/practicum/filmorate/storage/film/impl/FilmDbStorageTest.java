@@ -18,6 +18,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorageTest;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -249,6 +250,34 @@ public class FilmDbStorageTest extends FilmStorageTest<FilmDbStorage> {
         filmStorage.addLike(1L, 6L);
         popular = filmStorage.getPopular(10);
         assertEquals(10, popular.size());
+        assertEquals(1L, popular.get(0).getId());
+    }
+
+    @Test
+    @DisplayName("Популярные фильмы по 3 фильтрам")
+    void getPopularFilterByCountGenreAndYear() {
+        jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
+
+        Integer genreId = 1;
+        Integer year = 2022;
+
+        List<Film> popular = filmStorage.getFilmsByFilters(10, Optional.of(genreId), Optional.of(year));
+
+        assertEquals(1, popular.size());
+        assertEquals(1L, popular.get(0).getId());
+    }
+
+    @Test
+    @DisplayName("Популярные фильмы по 2 фильтрам")
+    void getPopularFilterByCountAndGenre() {
+        jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
+
+        Integer genreId = 1;
+//        Integer year = 2022;
+
+        List<Film> popular = filmStorage.getFilmsByFilters(10, Optional.of(genreId), Optional.empty());
+
+        assertEquals(1, popular.size());
         assertEquals(1L, popular.get(0).getId());
     }
 }

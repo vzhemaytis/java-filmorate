@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.film.impl;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
@@ -14,12 +15,9 @@ import ru.yandex.practicum.filmorate.storage.filmGenre.FilmGenreStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 
+import java.sql.*;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Component
 @Primary
@@ -120,15 +118,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getPopular(Integer count) {
-        String sql = "select * " +
-                "from FILMS as F " +
-                "left join (select FILM_ID, count(USER_ID) as POPULARITY " +
-                "           from LIKES " +
-                "           group by FILM_ID) as P " +
-                "           on F.FILM_ID = P.FILM_ID " +
-                "order by P.POPULARITY desc " +
-                "limit ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), count);
+        return getFilmsByFilters(count, Optional.empty(), Optional.empty());
     }
 
     @Override
@@ -155,6 +145,38 @@ public class FilmDbStorage implements FilmStorage {
                     String.format("%s with director_id= %s not found", Film.class, directorId)
             );
         }
+    }
+
+    public List<Film> getFilmsByFilters(Integer count, Optional<Integer> genreId, Optional<Integer> year) {
+        String sql = "select * " +
+                "from FILMS as F " +
+                "LEFT JOIN FILM_GENRES FG ON F.FILM_ID = FG.FILM_ID " +
+                "left join (select FILM_ID, count(USER_ID) as POPULARITY " +
+                "           from LIKES " +
+                "           group by FILM_ID) as P " +
+                "           on F.FILM_ID = P.FILM_ID ";
+
+        ArrayList<Integer> queryParamsList = new ArrayList<>(){};
+
+        if (genreId.isPresent()) {
+            sql += "WHERE GENRE_ID = ? ";
+            queryParamsList.add(genreId.get());
+        }
+
+        if (year.isPresent()) {
+            if (genreId.isPresent()){
+                sql += " AND ";
+            } else {
+                sql += " WHERE ";
+            }
+            sql += " YEAR(RELEASE_DATE) = ?";
+            queryParamsList.add(year.get());
+        }
+
+        sql = sql + " order by P.POPULARITY desc limit ?";
+        queryParamsList.add(count);
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), queryParamsList.toArray());
     }
 
     private Film makeFilm(ResultSet rs) throws SQLException {

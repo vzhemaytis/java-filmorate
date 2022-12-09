@@ -5,6 +5,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FilmService {
@@ -44,5 +45,9 @@ public class FilmService {
 
     public List<Film> getFilmsByDirectorSortedByYear(Integer directorId, String sortType) {
         return filmStorage.getFilmsByDirectorSortedByType(directorId, sortType);
+    }
+
+    public List<Film> getFilmsByFilters(Integer count, Optional<Integer> genreId, Optional<Integer> year){
+        return filmStorage.getFilmsByFilters(count, genreId, year);
     }
 }

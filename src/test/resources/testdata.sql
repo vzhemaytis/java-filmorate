@@ -50,7 +50,6 @@ VALUES (1, 1),
        (10, 10),
        (10, 9),
        (13, 9);
-<<<<<<< add-reviews
 
 INSERT INTO REVIEWS (FILM_ID, USER_ID, CONTENT, IS_POSITIVE)
 VALUES (1, 1, 'Ревью фильма 1 пользователем 1', TRUE),
@@ -76,7 +75,7 @@ VALUES (1, 1, TRUE),
        (2, 2, FALSE),
        (2, 3, FALSE),
        (2, 4, FALSE);
-=======
+
 INSERT INTO DIRECTORS (DIRECTOR_ID, DIRECTOR_NAME)
 VALUES (1, 'A'),
        (2, 'B'),
@@ -84,4 +83,3 @@ VALUES (1, 'A'),
        (4, 'D'),
        (5, 'E'),
        (6, 'F');
->>>>>>> develop
