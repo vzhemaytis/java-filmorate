@@ -43,7 +43,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getFilms() {        
+    public List<Film> getFilms() {
         String sql = "select * from FILMS order by FILM_ID";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs));
     }
@@ -110,7 +110,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void deleteLike(Long filmId, Long userId) {
         Film film = findFilm(filmId);
-        if(!film.getLikes().contains(userId)) {
+        if (!film.getLikes().contains(userId)) {
             throw new EntityNotFoundException(String.format("Like on film id = %s from user id = %s", filmId, userId));
         }
         likeStorage.deleteLike(film.getId(), userId);
@@ -124,9 +124,9 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getFilmsByDirectorSortedByType(Integer directorId, String sortType) {
         String orderBy = null;
-        if(sortType.equals("year")) {
+        if (sortType.equals("year")) {
             orderBy = "F.RELEASE_DATE";
-        } else if(sortType.equals("likes")){
+        } else if (sortType.equals("likes")) {
             orderBy = "P.POPULARITY desc";
         }
         String sql = "select * from FILM_DIRECTORS FD " +
@@ -138,7 +138,7 @@ public class FilmDbStorage implements FilmStorage {
                 "where FD.DIRECTOR_ID =?" +
                 "order by " + orderBy;
         List<Film> result = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), directorId);
-        if(result.size() > 0) {
+        if (result.size() > 0) {
             return result;
         } else {
             throw new EntityNotFoundException(
@@ -148,7 +148,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public List<Film> getFilmsByFilters(Integer count, Optional<Integer> genreId, Optional<Integer> year) {
-        String sql = "select F.FILM_ID, F.FILM_NAME, F.DESCRIPTION, F.DURATION, F.RELEASE_DATE, F.RATE, F.MPA_ID, POPULARITY, " +
+        String sql = "select F.FILM_ID, F.FILM_NAME, F.DESCRIPTION, F.DURATION, F.RELEASE_DATE, F.RATE, F.MPA_ID, POPULARITY " +
                 "from FILMS as F " +
                 "LEFT JOIN FILM_GENRES FG ON F.FILM_ID = FG.FILM_ID " +
                 "left join (select FILM_ID, count(USER_ID) as POPULARITY " +
@@ -156,7 +156,8 @@ public class FilmDbStorage implements FilmStorage {
                 "           group by FILM_ID) as P " +
                 "           on F.FILM_ID = P.FILM_ID ";
 
-        ArrayList<Integer> queryParamsList = new ArrayList<>(){};
+        ArrayList<Integer> queryParamsList = new ArrayList<>() {
+        };
 
         if (genreId.isPresent()) {
             sql += "WHERE GENRE_ID = ? ";
@@ -164,7 +165,7 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         if (year.isPresent()) {
-            if (genreId.isPresent()){
+            if (genreId.isPresent()) {
                 sql += " AND ";
             } else {
                 sql += " WHERE ";
@@ -173,9 +174,8 @@ public class FilmDbStorage implements FilmStorage {
             queryParamsList.add(year.get());
         }
 
-        sql = sql + " order by P.POPULARITY desc limit ?";
+        sql = sql + "group by F.FILM_ID order by P.POPULARITY desc limit ?";
         queryParamsList.add(count);
-
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), queryParamsList.toArray());
     }
 
