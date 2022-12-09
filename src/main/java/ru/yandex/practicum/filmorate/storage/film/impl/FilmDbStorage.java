@@ -148,7 +148,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public List<Film> getFilmsByFilters(Integer count, Optional<Integer> genreId, Optional<Integer> year) {
-        String sql = "select * " +
+        String sql = "select F.FILM_ID, F.FILM_NAME, F.DESCRIPTION, F.DURATION, F.RELEASE_DATE, F.RATE, F.MPA_ID, POPULARITY, " +
                 "from FILMS as F " +
                 "LEFT JOIN FILM_GENRES FG ON F.FILM_ID = FG.FILM_ID " +
                 "left join (select FILM_ID, count(USER_ID) as POPULARITY " +

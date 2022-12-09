@@ -273,11 +273,25 @@ public class FilmDbStorageTest extends FilmStorageTest<FilmDbStorage> {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
 
         Integer genreId = 1;
-//        Integer year = 2022;
 
-        List<Film> popular = filmStorage.getFilmsByFilters(10, Optional.of(genreId), Optional.empty());
+        film = Film.builder()
+                .name("name1")
+                .description("desc1")
+                .duration(100)
+                .releaseDate( LocalDate.of(2022, 12, 12))
+                .mpa(new Mpa(1))
+                .genres(Set.of(new Genre(1)))
+                .build();
+        Film fromStorage = filmStorage.addNewFilm(film);
+        filmStorage.addLike(fromStorage.getId(), 1L);
+        filmStorage.addLike(fromStorage.getId(), 2L);
+        filmStorage.addLike(fromStorage.getId(), 3L);
+        filmStorage.addLike(fromStorage.getId(), 4L);
+        filmStorage.addLike(fromStorage.getId(), 5L);
+
+        List<Film> popular = filmStorage.getFilmsByFilters(1, Optional.of(genreId), Optional.empty());
 
         assertEquals(1, popular.size());
-        assertEquals(1L, popular.get(0).getId());
+        assertEquals(fromStorage.getId(), popular.get(0).getId());
     }
 }
