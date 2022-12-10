@@ -64,11 +64,11 @@ public class UserDbStorage implements UserStorage {
                 "EMAIL = ?, LOGIN = ?, USER_NAME = ?, BIRTHDAY = ? " +
                 "where USER_ID = ?";
         jdbcTemplate.update(sqlQuery
-        , user.getEmail()
-        , user.getLogin()
-        , user.getName()
-        , user.getBirthday()
-        , user.getId());
+                , user.getEmail()
+                , user.getLogin()
+                , user.getName()
+                , user.getBirthday()
+                , user.getId());
         return findUser(user.getId());
     }
 
@@ -76,9 +76,7 @@ public class UserDbStorage implements UserStorage {
     public User findUser(Long id) {
         try {
             String sql = "select * from USERS where USER_ID = ?";
-            User user = jdbcTemplate.queryForObject(sql, (rs, rowNum) -> makeUser(rs), id);
-            user.setFriends(getFriendsIds(user.getId()));
-            return user;
+            return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> makeUser(rs), id);
         } catch (DataAccessException ex) {
             throw new EntityNotFoundException(String.format("%s with id= %s not found", User.class, id));
         }
@@ -106,9 +104,14 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getUserFriends(Long id) {
-        String sql = "select * from USERS as U " +
-                "inner join (select FRIEND_ID from FRIENDS where USER_ID = ?) as F on U.USER_ID = F.FRIEND_ID";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id);
+        User user = findUser(id);
+        if(user!= null) {
+            String sql = "select * from USERS as U " +
+                    "inner join (select FRIEND_ID from FRIENDS where USER_ID = ?) as F on U.USER_ID = F.FRIEND_ID";
+            return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id);
+        } else {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", User.class, id));
+        }
     }
 
     @Override
@@ -117,6 +120,23 @@ public class UserDbStorage implements UserStorage {
                 "inner join (select FRIEND_ID from FRIENDS where USER_ID = ?) as F on U.USER_ID = F.FRIEND_ID " +
                 "inner join (select FRIEND_ID from FRIENDS where USER_ID = ?) as O on U.USER_ID = O.FRIEND_ID ";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id, otherId);
+    }
+
+    @Override
+    public void deleteUser(Long userId) {
+        String sql = "select USER_ID from FRIENDS where FRIEND_ID = ?";
+        List<Long>  usersId = jdbcTemplate.queryForList(sql, Long.class, userId);
+        usersId.forEach(e -> deleteFriend(e, userId));
+        String sql1 = "delete from FRIENDS where USER_ID = ?";
+        String sql2 = "delete from LIKES where USER_ID = ?";
+        String sql3 = "delete from USERS where USER_ID = ?";
+        try{
+            jdbcTemplate.update(sql1, userId);
+            jdbcTemplate.update(sql2, userId);
+            jdbcTemplate.update(sql3, userId);
+        } catch (DataAccessException ex) {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", User.class, userId));
+        }
     }
 
     private User makeUser(ResultSet rs) throws SQLException {

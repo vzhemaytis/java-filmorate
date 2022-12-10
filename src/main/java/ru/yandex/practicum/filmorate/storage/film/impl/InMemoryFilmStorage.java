@@ -85,6 +85,13 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        return null;
+    }
+
+    @Override
+    public void deleteFilm(Long filmId) {
+    }
     public List<Film> getFilmsByDirectorSortedByType(Integer directorId, String sortType) {
         return null;
     }
