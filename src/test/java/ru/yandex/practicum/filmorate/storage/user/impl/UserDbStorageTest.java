@@ -270,4 +270,13 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
         assertNotEquals(listUsersBeforeDelete, listUsersAfterDelete);
         assertEquals(userStorage.getUsers().size(), 9);
     }
+
+    @Test
+    @DisplayName("20) Проверка получения ошибки при получении ленты событий несуществующего пользователя")
+    void getFeedTest() {
+        assertThrows(
+                EntityNotFoundException.class,
+                () -> userStorage.getFeed(1L)
+        );
+    }
 }
