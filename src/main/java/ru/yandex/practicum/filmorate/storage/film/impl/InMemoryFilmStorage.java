@@ -92,4 +92,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public void deleteFilm(Long filmId) {
     }
+    public List<Film> getFilmsByDirectorSortedByType(Integer directorId, String sortType) {
+        return null;
+    }
 }

@@ -3,8 +3,14 @@ delete from FILM_GENRES;
 delete from FRIENDS;
 delete from FILMS;
 delete from USERS;
+delete from REVIEWS;
+delete from REVIEWS_REACTIONS;
+
 alter table FILMS alter column FILM_ID restart with 1;
 alter table USERS alter column USER_ID restart with 1;
+alter table REVIEWS alter column REVIEW_ID restart with 1;
+alter table USERS alter column USER_ID restart with 1;
+
 merge into MPA_RATING (MPA_ID, MPA_NAME)
     values (1, 'G'),
            (2, 'PG'),
