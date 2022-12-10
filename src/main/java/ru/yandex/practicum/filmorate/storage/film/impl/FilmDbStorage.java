@@ -240,6 +240,21 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
+    public List<Long> getRecommendations(Long userId) {
+        String recommendationFilm = "SELECT fr.film_id FROM LIKES as fr " +
+                "WHERE fr.user_id = (SELECT fl.user_id FROM LIKES as fl WHERE fl.user_id <> ? " +
+                "AND fl.film_id IN (SELECT f.film_id FROM LIKES as f WHERE f.user_id = ?) " +
+                "GROUP BY fl.user_id " +
+                "ORDER BY COUNT(fl.film_id) DESC " +
+                "LIMIT 1)";
+        return jdbcTemplate.queryForList(recommendationFilm, Long.class, userId, userId);
+    }
+
+    public List<Long> getLikeFilmsUsersId(Long id) {
+        String likeFilms = "SELECT film_id FROM LIKES WHERE user_id = ?";
+        return jdbcTemplate.queryForList(likeFilms, Long.class, id);
+    }
+
     private Film makeFilm(ResultSet rs) throws SQLException {
         Long filmId = rs.getLong("FILM_ID");
         return Film.builder()

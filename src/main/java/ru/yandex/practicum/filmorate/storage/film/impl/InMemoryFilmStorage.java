@@ -97,9 +97,19 @@ public class InMemoryFilmStorage implements FilmStorage {
     public List<Film> getFilmsByFilters(Integer count, Optional<Integer> genreId, Optional<Integer> year) {
         return null;
     }
-    
+
     @Override
     public List<Film> search(String query, List<String> searchCriteria) {
+        return null;
+    }
+
+    @Override
+    public List<Long> getLikeFilmsUsersId(Long id) {
+        return null;
+    }
+
+    @Override
+    public List<Long> getRecommendations(Long userId) {
         return null;
     }
 }
