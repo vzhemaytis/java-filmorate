@@ -117,3 +117,17 @@ create table if not exists EVENTS
     constraint "EVENTS_fk"
         foreign key (USER_ID) references USERS
 );
+
+create table if not exists EVENTS
+(
+    EVENT_ID   LONG auto_increment,
+    USER_ID    LONG                  not null,
+    EVENT_TYPE CHARACTER VARYING(10) not null,
+    OPERATION  CHARACTER VARYING(10) not null,
+    ENTITY_ID  LONG                  not null,
+    TIMESTAMP  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    constraint "EVENTS_pk"
+        primary key (EVENT_ID),
+    constraint "EVENTS_fk"
+        foreign key (USER_ID) references USERS
+);

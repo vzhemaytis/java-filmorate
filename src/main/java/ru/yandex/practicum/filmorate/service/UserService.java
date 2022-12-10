@@ -51,6 +51,5 @@ public class UserService {
         userStorage.deleteUser(userId);
     }
 
-
     public List<Event> getFeed(Long id) { return userStorage.getFeed(id); }
 }

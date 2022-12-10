@@ -69,7 +69,6 @@ create table if not exists LIKES
     constraint "LIKES_2_fk"
         foreign key (USER_ID) references USERS
 );
-<<<<<<< add-reviews
 
 CREATE TABLE IF NOT EXISTS reviews
 (
@@ -83,11 +82,11 @@ CREATE TABLE IF NOT EXISTS reviews
 
 CREATE TABLE IF NOT EXISTS reviews_reactions
 (
-    review_id  bigint  NOT NULL REFERENCES reviews (review_id) ON DELETE CASCADE,
-    user_id    bigint  NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
+    review_id   bigint  NOT NULL REFERENCES reviews (review_id) ON DELETE CASCADE,
+    user_id     bigint  NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
     is_positive boolean NOT NULL,
     PRIMARY KEY (review_id, user_id)
-=======
+);
 create table if not exists DIRECTORS
 (
     DIRECTOR_ID LONG auto_increment,
@@ -105,7 +104,19 @@ create table if not exists FILM_DIRECTORS
         foreign key (FILM_ID) references FILMS,
     constraint "FILM_DIRECTORS_2_fk"
         foreign key (DIRECTOR_ID) references DIRECTORS
->>>>>>> develop
+);
+create table if not exists EVENTS
+(
+    EVENT_ID   LONG auto_increment,
+    USER_ID    LONG                  not null,
+    EVENT_TYPE CHARACTER VARYING(10) not null,
+    OPERATION  CHARACTER VARYING(10) not null,
+    ENTITY_ID  LONG                  not null,
+    TIMESTAMP  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    constraint "EVENTS_pk"
+        primary key (EVENT_ID),
+    constraint "EVENTS_fk"
+        foreign key (USER_ID) references USERS
 );
 create table if not exists EVENTS
 (
