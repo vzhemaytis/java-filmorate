@@ -53,4 +53,8 @@ public class FilmService {
     public List<Film> getFilmsByDirectorSortedByYear(Integer directorId, String sortType) {
         return filmStorage.getFilmsByDirectorSortedByType(directorId, sortType);
     }
+
+    public List<Film> search(String query, List<String> searchCriteria) {
+        return filmStorage.search(query, searchCriteria);
+    }
 }

@@ -95,4 +95,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     public List<Film> getFilmsByDirectorSortedByType(Integer directorId, String sortType) {
         return null;
     }
+
+    @Override
+    public List<Film> search(String query, List<String> searchCriteria) {
+        return null;
+    }
 }
