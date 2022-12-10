@@ -132,6 +132,36 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId){
+        String sql =
+                "with COMMON (COMMONID) as " +
+                        "( " +
+                        "   select distinct FILM_ID from LIKES where USER_ID = ? " +
+                        "   intersect " +
+                        "   select distinct FILM_ID from LIKES where USER_ID = ? " +
+                        ") " +
+                        "select FILMS.FILM_ID, FILMS.FILM_NAME, FILMS.DESCRIPTION, FILMS.RELEASE_DATE, FILMS.DURATION, FILMS.RATE, " +
+                        "FILMS.MPA_ID " +
+                        "from FILMS " +
+                        "inner join MPA_RATING on MPA_RATING.MPA_ID = FILMS.RATE " +
+                        "where FILM_ID in (select COMMONID from COMMON) " +
+                        "group by FILMS.FILM_ID " +
+                        "order by FILMS.RATE desc;";
+        List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), userId, friendId);
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), userId, friendId);
+    }
+
+    @Override
+    public void deleteFilm(Long filmId) {
+        String sql1 = "delete from FILM_GENRES where FILM_ID = ?";
+        String sql2 = "delete from LIKES where FILM_ID = ?";
+        String sql3 = "delete from FILMS where FILM_ID = ?";
+        try{
+            jdbcTemplate.update(sql1, filmId);
+            jdbcTemplate.update(sql2, filmId);
+            jdbcTemplate.update(sql3, filmId);
+        } catch (DataAccessException e) {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", Film.class, filmId));
     public List<Film> getFilmsByDirectorSortedByType(Integer directorId, String sortType) {
         String orderBy = null;
         if(sortType.equals("year")) {

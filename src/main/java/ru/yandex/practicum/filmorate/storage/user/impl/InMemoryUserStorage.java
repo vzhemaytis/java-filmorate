@@ -91,6 +91,10 @@ public class InMemoryUserStorage implements UserStorage {
                 map(users::get).collect(Collectors.toList());
     }
 
+    @Override
+    public void deleteUser(Long userId) {
+    }
+
     private long getUserId() {
         return userId++;
     }
