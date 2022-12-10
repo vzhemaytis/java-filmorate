@@ -7,10 +7,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -82,5 +79,15 @@ public class InMemoryFilmStorage implements FilmStorage {
                 sorted(Comparator.comparingInt(Film::getPopularity).reversed()).
                 limit(count).
                 collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Long> getLikeFilmsUsersId(Long id) {
+        return null;
+    }
+
+    @Override
+    public List<Long> getRecommendations(Long userId) {
+        return null;
     }
 }
