@@ -147,7 +147,6 @@ public class FilmDbStorage implements FilmStorage {
                         "where FILM_ID in (select COMMONID from COMMON) " +
                         "group by FILMS.FILM_ID " +
                         "order by FILMS.RATE desc;";
-        List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), userId, friendId);
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), userId, friendId);
     }
 
@@ -156,12 +155,15 @@ public class FilmDbStorage implements FilmStorage {
         String sql1 = "delete from FILM_GENRES where FILM_ID = ?";
         String sql2 = "delete from LIKES where FILM_ID = ?";
         String sql3 = "delete from FILMS where FILM_ID = ?";
-        try{
+        try {
             jdbcTemplate.update(sql1, filmId);
             jdbcTemplate.update(sql2, filmId);
             jdbcTemplate.update(sql3, filmId);
         } catch (DataAccessException e) {
             throw new EntityNotFoundException(String.format("%s with id= %s not found", Film.class, filmId));
+        }
+    }
+
     public List<Film> getFilmsByDirectorSortedByType(Integer directorId, String sortType) {
         String orderBy = null;
         if(sortType.equals("year")) {
@@ -203,3 +205,4 @@ public class FilmDbStorage implements FilmStorage {
                 .build();
     }
 }
+

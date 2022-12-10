@@ -72,9 +72,10 @@ public class FilmController {
     }
 
     @DeleteMapping("/{filmId}")
-    public void deleteFilm(@PathVariable("filmId") Long filmId){
+    public void deleteFilm(@PathVariable("filmId") Long filmId) {
         log.info("delete film from films with id = {}", filmId);
         filmService.deleteFilm(filmId);
+    }
 
     @GetMapping("/director/{directorId}")
     public List<Film> getFilmsByDirectorSortedByYear(@PathVariable Integer directorId,

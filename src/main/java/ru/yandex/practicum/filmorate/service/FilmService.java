@@ -49,6 +49,7 @@ public class FilmService {
 
     public void deleteFilm(Long filmId) {
         filmStorage.deleteFilm(filmId);
+    }
 
     public List<Film> getFilmsByDirectorSortedByYear(Integer directorId, String sortType) {
         return filmStorage.getFilmsByDirectorSortedByType(directorId, sortType);
