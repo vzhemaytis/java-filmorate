@@ -18,6 +18,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorageTest;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -251,6 +252,50 @@ public class FilmDbStorageTest extends FilmStorageTest<FilmDbStorage> {
         assertEquals(10, popular.size());
         assertEquals(1L, popular.get(0).getId());
     }
+
+    @Test
+    @DisplayName("Популярные фильмы по 3 фильтрам")
+    void getPopularFilterByCountGenreAndYear() {
+        jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
+
+        Integer genreId = 1;
+        Integer year = 2022;
+
+        List<Film> popular = filmStorage.getFilmsByFilters(10, Optional.of(genreId), Optional.of(year));
+
+        assertEquals(1, popular.size());
+        assertEquals(1L, popular.get(0).getId());
+    }
+
+    @Test
+    @DisplayName("Популярные фильмы по 2 фильтрам")
+    void getPopularFilterByCountAndGenre() {
+        jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
+
+        Integer genreId = 1;
+
+        film = Film.builder()
+                .name("name1")
+                .description("desc1")
+                .duration(100)
+                .releaseDate( LocalDate.of(2022, 12, 12))
+                .mpa(new Mpa(1))
+                .genres(Set.of(new Genre(1)))
+                .build();
+        Film fromStorage = filmStorage.addNewFilm(film);
+        filmStorage.addLike(fromStorage.getId(), 1L);
+        filmStorage.addLike(fromStorage.getId(), 2L);
+        filmStorage.addLike(fromStorage.getId(), 3L);
+        filmStorage.addLike(fromStorage.getId(), 4L);
+        filmStorage.addLike(fromStorage.getId(), 5L);
+
+        List<Film> popular = filmStorage.getFilmsByFilters(1, Optional.of(genreId), Optional.empty());
+
+        assertEquals(1, popular.size());
+        assertEquals(fromStorage.getId(), popular.get(0).getId());
+        
+       }
+       
     @Test
     @DisplayName("18) Проверка удаления фильма")
     void deleteFilmTest(){

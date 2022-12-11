@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/films")
@@ -47,7 +48,7 @@ public class FilmController {
     @PutMapping("/{id}/like/{userId}")
     public void addLike(@PathVariable("id") Long id,
                         @PathVariable("userId") Long userId) {
-        log.info("add like to film with id = {} from user with id = {}", id,  userId);
+        log.info("add like to film with id = {} from user with id = {}", id, userId);
         filmService.addLike(id, userId);
     }
 
@@ -90,5 +91,13 @@ public class FilmController {
                              @RequestParam(name = "by") List<String> searchCriteria) {
         log.info("Search {}, which contains {}", searchCriteria, query);
         return filmService.search(query, searchCriteria);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getFilmsByFilter(@RequestParam(defaultValue = "10", required = false) Integer count,
+                                       @RequestParam Optional<Integer> genreId,
+                                       @RequestParam Optional<Integer> year) {
+        log.info("get {} most popular films", count);
+        return filmService.getFilmsByFilters(count, genreId, year);
     }
 }

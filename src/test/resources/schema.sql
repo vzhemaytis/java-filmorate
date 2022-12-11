@@ -78,7 +78,6 @@ CREATE TABLE IF NOT EXISTS reviews
     content     text    NOT NULL,
     is_positive boolean NOT NULL
 );
--- CREATE UNIQUE INDEX  IF NOT EXISTS REVIEWS_FILM_ID_USER_ID ON reviews (film_id, user_id);
 
 CREATE TABLE IF NOT EXISTS reviews_reactions
 (
@@ -104,6 +103,7 @@ create table if not exists FILM_DIRECTORS
         foreign key (FILM_ID) references FILMS,
     constraint "FILM_DIRECTORS_2_fk"
         foreign key (DIRECTOR_ID) references DIRECTORS
+);
 
 create table if not exists EVENTS
 (

@@ -86,6 +86,7 @@ CREATE TABLE IF NOT EXISTS REVIEWS_REACTIONS
     is_positive boolean NOT NULL,
     PRIMARY KEY (review_id, user_id)
 );
+
 create table if not exists DIRECTORS
 (
     DIRECTOR_ID LONG auto_increment,
