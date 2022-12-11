@@ -17,7 +17,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorageTest;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -142,8 +141,10 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         userStorage.addFriend(6L, 7L);
         userStorage.addFriend(6L, 8L);
-        User userWithFriends = userStorage.findUser(6L);
-        assertEquals(Set.of(7L, 8L), userWithFriends.getFriends());
+        List<User> friends = userStorage.getUserFriends(6L);
+        assertEquals(2, friends.size());
+        assertEquals(7L, friends.get(0).getId());
+        assertEquals(8L, friends.get(1).getId());
     }
 
     @Test
@@ -180,14 +181,14 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
     @DisplayName("12) Проверка удаления из друзей")
     void deleteFriendTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
-        User userWithFriend = userStorage.findUser(1L);
+        List<User> frineds = userStorage.getUserFriends(1L);
         assertAll(
-                () -> assertEquals(1, userWithFriend.getFriends().size()),
-                () -> assertEquals(Set.of(2L), userWithFriend.getFriends())
+                () -> assertEquals(1, frineds.size()),
+                () -> assertEquals(2L, frineds.get(0).getId())
         );
         userStorage.deleteFriend(1L, 2L);
-        User userWithoutFriend = userStorage.findUser(1L);
-        assertTrue(userWithoutFriend.getFriends().isEmpty());
+        List<User> noFriends = userStorage.getUserFriends(1L);
+        assertTrue(noFriends.isEmpty());
     }
 
     @Test
@@ -261,7 +262,7 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
     }
 
     @Test
-    @DisplayName("18) Проверка удаления пользователя")
+    @DisplayName("20) Проверка удаления пользователя")
     void deleteFilmTest(){
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         Integer listUsersBeforeDelete = userStorage.getUsers().size();
@@ -272,7 +273,7 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
     }
 
     @Test
-    @DisplayName("20) Проверка получения ошибки при получении ленты событий несуществующего пользователя")
+    @DisplayName("21) Проверка получения ошибки при получении ленты событий несуществующего пользователя")
     void getFeedTest() {
         assertThrows(
                 EntityNotFoundException.class,
