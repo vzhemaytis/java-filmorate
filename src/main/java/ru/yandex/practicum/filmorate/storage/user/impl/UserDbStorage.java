@@ -128,9 +128,6 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void deleteUser(Long userId) {
-        String sql = "select USER_ID from FRIENDS where FRIEND_ID = ?";
-        List<Long>  usersId = jdbcTemplate.queryForList(sql, Long.class, userId);
-        usersId.forEach(e -> deleteFriend(e, userId));
         String sqlDelete = "delete from USERS where USER_ID = ?";
         try{
             jdbcTemplate.update(sqlDelete, userId);

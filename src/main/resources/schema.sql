@@ -18,7 +18,7 @@ create table if not exists FRIENDS
     constraint "FRIENDS_USERS_1_fk"
         foreign key (USER_ID) references USERS on delete cascade,
     constraint "FRIENDS_USERS_2_fk"
-        foreign key (FRIEND_ID) references USERS
+        foreign key (FRIEND_ID) references USERS on delete cascade
 );
 create table if not exists MPA_RATING
 (
