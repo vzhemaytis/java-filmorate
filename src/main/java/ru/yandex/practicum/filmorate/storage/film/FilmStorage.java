@@ -18,4 +18,6 @@ public interface FilmStorage {
     List<Film> getFilmsByDirectorSortedByType(Integer directorId, String sortType);
     List<Film> getFilmsByFilters(Integer count, Optional<Integer> genreId, Optional<Integer> year);
     List<Film> search(String query, List<String> searchCriteria);
+    List<Long> getLikeFilmsUsersId(Long id);
+    List<Long> getRecommendations(Long userId);
 }
