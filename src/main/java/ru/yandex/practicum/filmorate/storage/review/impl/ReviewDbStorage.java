@@ -64,6 +64,8 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     public void updateReviewById(Review review) {
+        Review oldReview = getReviewById(review.getReviewId());
+        eventStorage.addEvent(oldReview.getUserId(), EventType.REVIEW, Operation.UPDATE, oldReview.getFilmId());
         String sqlQuery = "UPDATE reviews SET content = ?, is_positive = ? WHERE review_id = ?";
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sqlQuery);
@@ -72,7 +74,6 @@ public class ReviewDbStorage implements ReviewStorage {
             ps.setLong(3, review.getReviewId());
             return ps;
         });
-        eventStorage.addEvent(review.getUserId(), EventType.REVIEW, Operation.UPDATE, review.getFilmId());
     }
 
     public void deleteReviewById(Long reviewId) {
