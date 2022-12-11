@@ -122,6 +122,38 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId){
+        String sql =
+                "with COMMON (COMMONID) as " +
+                        "( " +
+                        "   select distinct FILM_ID from LIKES where USER_ID = ? " +
+                        "   intersect " +
+                        "   select distinct FILM_ID from LIKES where USER_ID = ? " +
+                        ") " +
+                        "select FILMS.FILM_ID, FILMS.FILM_NAME, FILMS.DESCRIPTION, FILMS.RELEASE_DATE, FILMS.DURATION, FILMS.RATE, " +
+                        "FILMS.MPA_ID " +
+                        "from FILMS " +
+                        "inner join MPA_RATING on MPA_RATING.MPA_ID = FILMS.RATE " +
+                        "where FILM_ID in (select COMMONID from COMMON) " +
+                        "group by FILMS.FILM_ID " +
+                        "order by FILMS.RATE desc;";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), userId, friendId);
+    }
+
+    @Override
+    public void deleteFilm(Long filmId) {
+        String sql1 = "delete from FILM_GENRES where FILM_ID = ?";
+        String sql2 = "delete from LIKES where FILM_ID = ?";
+        String sql3 = "delete from FILMS where FILM_ID = ?";
+        try {
+            jdbcTemplate.update(sql1, filmId);
+            jdbcTemplate.update(sql2, filmId);
+            jdbcTemplate.update(sql3, filmId);
+        } catch (DataAccessException e) {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", Film.class, filmId));
+        }
+    }
+
     public List<Film> getFilmsByDirectorSortedByType(Integer directorId, String sortType) {
         String orderBy = null;
         if (sortType.equals("year")) {
@@ -177,6 +209,34 @@ public class FilmDbStorage implements FilmStorage {
         sql = sql + "group by F.FILM_ID order by P.POPULARITY desc limit ?";
         queryParamsList.add(count);
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), queryParamsList.toArray());
+    @Override
+    public List<Film> search(String query, List<String> searchCriteria) {
+        try {
+            StringBuilder whereSql = new StringBuilder("");
+            if (searchCriteria.size() > 0) {
+                whereSql.append("where ");
+            }
+            if (searchCriteria.contains("title")) {
+                whereSql.append("F.FILM_NAME like '%").append(query.toLowerCase()).append("%'");
+            }
+            if (searchCriteria.contains("director")) {
+                if (whereSql.indexOf("%") != -1) {
+                    whereSql.append(" or ");
+                }
+                whereSql.append("D.DIRECTOR_NAME like '%").append(query.toLowerCase()).append("%'");
+            }
+            String sqlQuery = "select * from FILMS F " +
+                    "left join FILM_DIRECTORS FD on FD.FILM_ID = F.FILM_ID " +
+                    "left join DIRECTORS D on D.DIRECTOR_ID = FD.DIRECTOR_ID " +
+                    whereSql +
+                    " order by FILM_ID desc"
+                    ;
+
+            return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs));
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            throw new EntityNotFoundException("");
+        }
     }
 
     private Film makeFilm(ResultSet rs) throws SQLException {
@@ -195,3 +255,4 @@ public class FilmDbStorage implements FilmStorage {
                 .build();
     }
 }
+

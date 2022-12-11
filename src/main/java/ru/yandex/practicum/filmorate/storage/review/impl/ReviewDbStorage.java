@@ -7,7 +7,10 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 
 import java.sql.PreparedStatement;
@@ -19,9 +22,12 @@ import java.util.List;
 @Component("ReviewDbStorage")
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final EventStorage eventStorage;
 
-    public ReviewDbStorage(JdbcTemplate jdbcTemplate) {
+
+    public ReviewDbStorage(JdbcTemplate jdbcTemplate, EventStorage eventStorage) {
         this.jdbcTemplate = jdbcTemplate;
+        this.eventStorage = eventStorage;
     }
 
     public long addReview(Review review) {
@@ -36,7 +42,7 @@ public class ReviewDbStorage implements ReviewStorage {
             ps.setBoolean(4, review.getIsPositive());
             return ps;
         }, keyHolder);
-
+        eventStorage.addEvent(review.getUserId(), EventType.REVIEW, Operation.ADD, review.getFilmId());
         return keyHolder.getKey().longValue();
 
     }
@@ -59,7 +65,6 @@ public class ReviewDbStorage implements ReviewStorage {
 
     public void updateReviewById(Review review) {
         String sqlQuery = "UPDATE reviews SET content = ?, is_positive = ? WHERE review_id = ?";
-
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sqlQuery);
             ps.setString(1, review.getContent());
@@ -67,9 +72,12 @@ public class ReviewDbStorage implements ReviewStorage {
             ps.setLong(3, review.getReviewId());
             return ps;
         });
+        eventStorage.addEvent(review.getUserId(), EventType.REVIEW, Operation.UPDATE, review.getFilmId());
     }
 
     public void deleteReviewById(Long reviewId) {
+        Review review = getReviewById(reviewId);
+        eventStorage.addEvent(review.getUserId(), EventType.REVIEW, Operation.UPDATE, review.getFilmId());
         String sqlQuery = "DELETE FROM reviews WHERE review_id = ?";
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sqlQuery);
@@ -82,8 +90,10 @@ public class ReviewDbStorage implements ReviewStorage {
         String sqlQuery = "SELECT r.review_id, r.film_id, r.user_id, r.content, r.is_positive," +
                 "COUNT(postive_r.review_id) - COUNT(negative_r.review_id) AS useful " +
                 "FROM reviews AS r " +
-                "LEFT JOIN (SELECT review_id FROM reviews_reactions WHERE is_positive = TRUE) AS postive_r ON r.review_id = postive_r.review_id " +
-                "LEFT JOIN (SELECT review_id FROM reviews_reactions WHERE is_positive = FALSE) AS negative_r ON r.review_id = negative_r.review_id ";
+                "LEFT JOIN (SELECT review_id FROM reviews_reactions WHERE is_positive = TRUE) " +
+                "AS postive_r ON r.review_id = postive_r.review_id " +
+                "LEFT JOIN (SELECT review_id FROM reviews_reactions WHERE is_positive = FALSE) " +
+                "AS negative_r ON r.review_id = negative_r.review_id ";
 
 
         if (filmId != null) {
@@ -92,7 +102,7 @@ public class ReviewDbStorage implements ReviewStorage {
         }
 
         sqlQuery = sqlQuery + "GROUP BY r.review_id, r.film_id, r.user_id, r.content, r.is_positive ORDER BY useful DESC " +
-                              "LIMIT ?;";
+                "LIMIT ?;";
 
         String finalSqlQuery = sqlQuery;
         return jdbcTemplate.query(connection -> {

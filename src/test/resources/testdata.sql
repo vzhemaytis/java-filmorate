@@ -75,7 +75,6 @@ VALUES (1, 1, TRUE),
        (2, 2, FALSE),
        (2, 3, FALSE),
        (2, 4, FALSE);
-
 INSERT INTO DIRECTORS (DIRECTOR_ID, DIRECTOR_NAME)
 VALUES (1, 'A'),
        (2, 'B'),

@@ -293,5 +293,17 @@ public class FilmDbStorageTest extends FilmStorageTest<FilmDbStorage> {
 
         assertEquals(1, popular.size());
         assertEquals(fromStorage.getId(), popular.get(0).getId());
+        
+       }
+       
+    @Test
+    @DisplayName("18) Проверка удаления фильма")
+    void deleteFilmTest(){
+        jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
+        Integer listFilmsBeforeDelete = filmStorage.getFilms().size();
+        filmStorage.deleteFilm(1L);
+        Integer listFilmsAfterDelete = filmStorage.getFilms().size();
+        assertNotEquals(listFilmsBeforeDelete, listFilmsAfterDelete);
+        assertEquals(filmStorage.getFilms().size(), 14);
     }
 }

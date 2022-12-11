@@ -259,4 +259,24 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
                 () -> assertEquals(List.of(commonFriend), commonFriends)
         );
     }
+
+    @Test
+    @DisplayName("18) Проверка удаления пользователя")
+    void deleteFilmTest(){
+        jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
+        Integer listUsersBeforeDelete = userStorage.getUsers().size();
+        userStorage.deleteUser(1L);
+        Integer listUsersAfterDelete = userStorage.getUsers().size();
+        assertNotEquals(listUsersBeforeDelete, listUsersAfterDelete);
+        assertEquals(userStorage.getUsers().size(), 9);
+    }
+
+    @Test
+    @DisplayName("20) Проверка получения ошибки при получении ленты событий несуществующего пользователя")
+    void getFeedTest() {
+        assertThrows(
+                EntityNotFoundException.class,
+                () -> userStorage.getFeed(1L)
+        );
+    }
 }
