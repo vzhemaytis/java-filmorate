@@ -131,13 +131,9 @@ public class UserDbStorage implements UserStorage {
         String sql = "select USER_ID from FRIENDS where FRIEND_ID = ?";
         List<Long>  usersId = jdbcTemplate.queryForList(sql, Long.class, userId);
         usersId.forEach(e -> deleteFriend(e, userId));
-        String sql1 = "delete from FRIENDS where USER_ID = ?";
-        String sql2 = "delete from LIKES where USER_ID = ?";
-        String sql3 = "delete from USERS where USER_ID = ?";
+        String sqlDelete = "delete from USERS where USER_ID = ?";
         try{
-            jdbcTemplate.update(sql1, userId);
-            jdbcTemplate.update(sql2, userId);
-            jdbcTemplate.update(sql3, userId);
+            jdbcTemplate.update(sqlDelete, userId);
         } catch (DataAccessException ex) {
             throw new EntityNotFoundException(String.format("%s with id= %s not found", User.class, userId));
         }

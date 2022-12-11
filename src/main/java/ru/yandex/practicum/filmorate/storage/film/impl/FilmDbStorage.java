@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage.film.impl;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
@@ -209,6 +208,8 @@ public class FilmDbStorage implements FilmStorage {
         sql = sql + "group by F.FILM_ID order by P.POPULARITY desc limit ?";
         queryParamsList.add(count);
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), queryParamsList.toArray());
+    }
+
     @Override
     public List<Film> search(String query, List<String> searchCriteria) {
         try {

@@ -95,7 +95,7 @@ create table if not exists DIRECTORS
 );
 create table if not exists FILM_DIRECTORS
 (
-    FILM_ID  LONG not null,
+    FILM_ID     LONG    not null,
     DIRECTOR_ID INTEGER not null,
     constraint "FILM_DIRECTORS_pk"
         primary key (FILM_ID, DIRECTOR_ID),

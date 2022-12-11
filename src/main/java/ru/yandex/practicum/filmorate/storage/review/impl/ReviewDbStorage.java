@@ -77,7 +77,7 @@ public class ReviewDbStorage implements ReviewStorage {
 
     public void deleteReviewById(Long reviewId) {
         Review review = getReviewById(reviewId);
-        eventStorage.addEvent(review.getUserId(), EventType.REVIEW, Operation.UPDATE, review.getFilmId());
+        eventStorage.addEvent(review.getUserId(), EventType.REVIEW, Operation.REMOVE, review.getFilmId());
         String sqlQuery = "DELETE FROM reviews WHERE review_id = ?";
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sqlQuery);

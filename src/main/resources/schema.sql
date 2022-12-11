@@ -1,3 +1,4 @@
+drop all objects;
 create table if not exists USERS
 (
     USER_ID   LONG auto_increment,
@@ -15,7 +16,7 @@ create table if not exists FRIENDS
     constraint "FRIENDS_pk"
         primary key (USER_ID, FRIEND_ID),
     constraint "FRIENDS_USERS_1_fk"
-        foreign key (USER_ID) references USERS,
+        foreign key (USER_ID) references USERS on delete cascade,
     constraint "FRIENDS_USERS_2_fk"
         foreign key (FRIEND_ID) references USERS
 );
@@ -67,7 +68,7 @@ create table if not exists LIKES
     constraint "LIKES_1_fk"
         foreign key (FILM_ID) references FILMS,
     constraint "LIKES_2_fk"
-        foreign key (USER_ID) references USERS
+        foreign key (USER_ID) references USERS on delete cascade
 );
 
 CREATE TABLE IF NOT EXISTS REVIEWS
@@ -117,5 +118,5 @@ create table if not exists EVENTS
     constraint "EVENTS_pk"
         primary key (EVENT_ID),
     constraint "EVENTS_fk"
-        foreign key (USER_ID) references USERS
+        foreign key (USER_ID) references USERS on delete cascade
 );

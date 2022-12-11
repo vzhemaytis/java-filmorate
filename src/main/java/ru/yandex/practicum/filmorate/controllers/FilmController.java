@@ -59,13 +59,6 @@ public class FilmController {
         filmService.deleteLike(id, userId);
     }
 
-    @GetMapping("/popular")
-    public List<Film> getPopular(@RequestParam(defaultValue = "10", required = false) Integer count) {
-        log.info("get {} most popular films", count);
-        return filmService.getPopular(count);
-    }
-
-
     @GetMapping("/common")
     public List<Film> getCommonFilms(@RequestParam Long userId, @RequestParam Long friendId){
         log.info("get common films user = {} with friend = {} ", userId, friendId);
