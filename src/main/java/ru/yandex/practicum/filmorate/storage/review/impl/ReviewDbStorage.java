@@ -42,7 +42,7 @@ public class ReviewDbStorage implements ReviewStorage {
             ps.setBoolean(4, review.getIsPositive());
             return ps;
         }, keyHolder);
-        eventStorage.addEvent(review.getUserId(), EventType.REVIEW, Operation.ADD, review.getFilmId());
+        eventStorage.addEvent(review.getUserId(), EventType.REVIEW, Operation.ADD, keyHolder.getKey().longValue());
         return keyHolder.getKey().longValue();
 
     }
@@ -65,7 +65,7 @@ public class ReviewDbStorage implements ReviewStorage {
 
     public void updateReviewById(Review review) {
         Review oldReview = getReviewById(review.getReviewId());
-        eventStorage.addEvent(oldReview.getUserId(), EventType.REVIEW, Operation.UPDATE, oldReview.getFilmId());
+        eventStorage.addEvent(oldReview.getUserId(), EventType.REVIEW, Operation.UPDATE, review.getReviewId());
         String sqlQuery = "UPDATE reviews SET content = ?, is_positive = ? WHERE review_id = ?";
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sqlQuery);
@@ -78,7 +78,7 @@ public class ReviewDbStorage implements ReviewStorage {
 
     public void deleteReviewById(Long reviewId) {
         Review review = getReviewById(reviewId);
-        eventStorage.addEvent(review.getUserId(), EventType.REVIEW, Operation.REMOVE, review.getFilmId());
+        eventStorage.addEvent(review.getUserId(), EventType.REVIEW, Operation.REMOVE, reviewId);
         String sqlQuery = "DELETE FROM reviews WHERE review_id = ?";
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sqlQuery);
