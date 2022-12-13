@@ -18,7 +18,7 @@ public class UserValidatorTest {
 
     @Test
     @DisplayName("1) Проверка невалидности логина и email в dto со значением null")
-    public void createFilmTest() {
+    public void createFilmNotValidNullLoginOrEmailTest() {
         User user = getUserDto(1L, null, null, "name", birthday);
         assertAll(
                 () -> assertTrue(dtoHasErrorMessage(user, "email should not be blank")),
@@ -29,7 +29,7 @@ public class UserValidatorTest {
     @ParameterizedTest(name = "{index}. Проверка невалидности email \"{arguments}\"")
     @ValueSource(strings = {"@b.com", "ab.com", "qwerty@", "qwerty@b."})
     @DisplayName("2) Проверка невалидности email в dto с неправильным форматом email")
-    public void createFilmTest2(String email) {
+    public void createFilmNotValidWrongEmailFormatTest(String email) {
         User user = getUserDto(1L, email, "login", "name", birthday);
         assertTrue(dtoHasErrorMessage(user, "wrong email pattern"));
     }
@@ -37,14 +37,14 @@ public class UserValidatorTest {
     @ParameterizedTest(name = "{index}. Проверка невалидности логина \"{arguments}\"")
     @ValueSource(strings = {" ", "a b", " a", "a ", "a b "})
     @DisplayName("3) Проверка невалидности логина в dto с содержанием пробелов")
-    public void createFilmTest3(String login) {
+    public void createFilmNotValidLoginHasSpacesTest(String login) {
         User user = getUserDto(1L, "a@b.com", login, "name", birthday);
         assertTrue(dtoHasErrorMessage(user, "login should not have spaces"));
     }
 
     @Test
     @DisplayName("4) Проверка невалидности дня рождения в dto со значением в будущем")
-    public void createFilmTest4() {
+    public void createFilmNotValidBirthdayIsInFutureTest() {
         LocalDate futureBirthday = LocalDate.now().plusDays(1);
         User user = getUserDto(1L, "a@b.com", "login", "name", futureBirthday);
         assertTrue(dtoHasErrorMessage(user, "birthday should be in the past"));

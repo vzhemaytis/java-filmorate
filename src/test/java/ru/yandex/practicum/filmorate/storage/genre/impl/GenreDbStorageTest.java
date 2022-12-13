@@ -24,7 +24,7 @@ public class GenreDbStorageTest extends GenreStorageTest<GenreDbStorage> {
 
     @Test
     @DisplayName("1) Получение списка жанров")
-    void getGenresTest() {
+    void getAllGenresTest() {
         List<Genre> genres = genreStorage.getGenres();
         assertAll(
                 () -> assertEquals(6, genres.size()),
@@ -45,7 +45,7 @@ public class GenreDbStorageTest extends GenreStorageTest<GenreDbStorage> {
 
     @Test
     @DisplayName("2) Получение жанра по ID")
-    void findGenre() {
+    void findGenreTest() {
         Genre genre = genreStorage.findGenre(1);
         assertAll(
                 () -> assertEquals(1, genre.getId()),
@@ -55,7 +55,7 @@ public class GenreDbStorageTest extends GenreStorageTest<GenreDbStorage> {
 
     @Test
     @DisplayName("3) Получение ошибки при запросе несуществующего жанра")
-    void findGenre2() {
+    void findGenreThrowsEntityNotFoundTest() {
         assertThrows(
                 EntityNotFoundException.class,
                 () -> genreStorage.findGenre(7)

@@ -5,7 +5,6 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
@@ -37,7 +36,7 @@ public class ReviewDbStorageTest extends ReviewStorageTest<ReviewDbStorage> {
     }
 
     @Test
-    @DisplayName("Получение ревью фильма по айди")
+    @DisplayName("1) Получение ревью фильма по айди")
     void getReviewByIdTest() {
         long userId = 1L;
         long filmId = 1L;
@@ -52,7 +51,7 @@ public class ReviewDbStorageTest extends ReviewStorageTest<ReviewDbStorage> {
     }
 
     @Test
-    @DisplayName("Получение ревью фильма по айди")
+    @DisplayName("2) Добавление ревью фильму")
     void addReviewTest() {
         long idToCreate = 14L;
         long userId = 1L;
@@ -79,7 +78,7 @@ public class ReviewDbStorageTest extends ReviewStorageTest<ReviewDbStorage> {
     }
 
     @Test
-    @DisplayName("Удаление ревью по id")
+    @DisplayName("3) Удаление ревью по id")
     void deleteReviewByIdTest() {
         long idToDelete = 13L;
 
@@ -93,7 +92,7 @@ public class ReviewDbStorageTest extends ReviewStorageTest<ReviewDbStorage> {
 
 
     @Test
-    @DisplayName("Получение всех ревью для фильма")
+    @DisplayName("4) Получение всех ревью для фильма")
     void getFilmReviewsTest() {
         long filmId = 1L;
 
@@ -102,7 +101,7 @@ public class ReviewDbStorageTest extends ReviewStorageTest<ReviewDbStorage> {
     }
 
     @Test
-    @DisplayName("Обновление ревью фильма")
+    @DisplayName("5) Обновление ревью фильма")
     void updateReviewByIdTest() {
         long reviewId = 1L;
         long userId = 1L;
@@ -129,7 +128,7 @@ public class ReviewDbStorageTest extends ReviewStorageTest<ReviewDbStorage> {
     }
 
     @Test
-    @DisplayName("Обновление ревью фильма")
+    @DisplayName("6) Добавление реакции к ревью")
     void addReactionToReviewTest() {
 
         long reviewId = 1L;
@@ -150,7 +149,7 @@ public class ReviewDbStorageTest extends ReviewStorageTest<ReviewDbStorage> {
     }
 
     @Test
-    @DisplayName("Обновление ревью фильма")
+    @DisplayName("7) Удаление реакции к ревью")
     void removeReactionToReviewTest() {
         long reviewId = 1L;
         long userId = 1L;
@@ -163,7 +162,7 @@ public class ReviewDbStorageTest extends ReviewStorageTest<ReviewDbStorage> {
         // поставили лайк
         reviewStorage.deleteLikeOrDislikeToReview(reviewId, userId);
 
-        // проверили, что usefult = 5
+        // проверили, что useful = 5
         Review updatedReview = reviewStorage.getReviewById(reviewId);
         assertEquals(reviewId, updatedReview.getReviewId());
         assertEquals(3, updatedReview.getUseful());

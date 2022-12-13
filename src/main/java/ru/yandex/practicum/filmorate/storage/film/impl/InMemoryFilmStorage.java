@@ -83,33 +83,34 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public List<Film> getCommonFilms(Long userId, Long friendId) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void deleteFilm(Long filmId) {
+        throw new UnsupportedOperationException();
     }
     public List<Film> getFilmsByDirectorSortedByType(Integer directorId, String sortType) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public List<Film> getFilmsByFilters(Integer count, Optional<Integer> genreId, Optional<Integer> year) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public List<Film> search(String query, List<String> searchCriteria) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public List<Long> getLikeFilmsUsersId(Long id) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public List<Long> getRecommendations(Long userId) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 }

@@ -40,7 +40,7 @@ public class EventDbStorageTest extends EventStorageTest<EventDbStorage> {
 
     @Test
     @DisplayName("1) Получение пустой ленты событий")
-    void getFeedTest() {
+    void getEmptyFeedTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         List<Event> feed = eventStorage.getFeed(6L);
         assertTrue(feed.isEmpty());
@@ -48,7 +48,7 @@ public class EventDbStorageTest extends EventStorageTest<EventDbStorage> {
 
     @Test
     @DisplayName("2) Получение ленты событий юзера 1")
-    void getFeedTest2() {
+    void getUser1FeedTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         likeStorage.addLike(1L, 6L);
         likeStorage.deleteLike(1L, 6L);

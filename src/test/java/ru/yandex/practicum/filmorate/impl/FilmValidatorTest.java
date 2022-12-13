@@ -19,7 +19,7 @@ public class FilmValidatorTest {
 
     @Test
     @DisplayName("1) Проверка невалидности названия в dto со значением null")
-    public void createFilmTest() {
+    public void createFilmNotValidNullNameTest() {
         Film film = getFilmDto(1L, null, "desc" , releaseDate, 100);
         assertTrue(dtoHasErrorMessage(film, "name should be not blank"));
     }
@@ -27,14 +27,14 @@ public class FilmValidatorTest {
     @ParameterizedTest(name = "{index}. Проверка невалидности названия \"{arguments}\"")
     @ValueSource(strings = {"", " ", "  ", "   ", "    ", "     "})
     @DisplayName("2) Проверка невалидности названия в dto с пустыми значениями")
-    public void createFilmTest2(String name) {
+    public void createFilmNotValidBlankNameTest(String name) {
         Film film = getFilmDto(1L, name, "desc" , releaseDate, 100);
         assertTrue(dtoHasErrorMessage(film, "name should be not blank"));
     }
 
     @Test
     @DisplayName("3) Проверка невалидности описания в dto с значение больше 200 знаков")
-    public void createFilmTest3() {
+    public void createFilmNotValidTooLongDescriptionTest() {
         String description = "1".repeat(201);
         Film film = getFilmDto(1L, "name", description , releaseDate, 100);
         assertTrue(dtoHasErrorMessage(film, "description should be shorter 200 letters"));
@@ -43,14 +43,14 @@ public class FilmValidatorTest {
     @ParameterizedTest(name = "{index}. Проверка невалидности длительности \"{arguments}\"")
     @ValueSource(ints = {Integer.MIN_VALUE, -10, -5, -1, 0})
     @DisplayName("4) Проверка невалидности длительности в dto")
-    public void createFilmTest4(int duration) {
+    public void createFilmNotValidNotPositiveDurationTest(int duration) {
         Film film = getFilmDto(1L, "name", "description", releaseDate, duration);
         Assertions.assertTrue(dtoHasErrorMessage(film, "duration should be positive"));
     }
 
     @Test
     @DisplayName("5) Проверка невалидности даты релиза в dto со значением раньше 28.12.1895")
-    public void createFilmTest5() {
+    public void createFilmNotValidTooOldReleaseDateTest() {
         LocalDate wrongReleaseDate = LocalDate.of(1895, 12,27);
         Film film = getFilmDto(1L, "name", "description" , wrongReleaseDate, 100);
         assertTrue(dtoHasErrorMessage(film, "release date should be past 28.12.1895"));

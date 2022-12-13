@@ -94,11 +94,12 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void deleteUser(Long userId) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public List<Event> getFeed(Long id) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     private long getUserId() {

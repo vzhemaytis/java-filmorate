@@ -34,20 +34,20 @@ public class DirectorDbStorageTest extends DirectorStorageTest<DirectorDbStorage
     }
 
     @Test
-    @DisplayName("Получение всех режиссеров")
+    @DisplayName("1) Получение всех режиссеров")
     void getDirectorsEmptyTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         assertEquals(6, directorStorage.getDirectors().size());
     }
 
     @Test
-    @DisplayName("Получение пустого списка режиссеров")
+    @DisplayName("2) Получение пустого списка режиссеров")
     void getDirectorsTest() {
         assertTrue(directorStorage.getDirectors().isEmpty());
     }
 
     @Test
-    @DisplayName("Добавление нового режиссера")
+    @DisplayName("3) Добавление нового режиссера")
     void addDirectorTest() {
         Director director = new Director(10L, "A");
         directorStorage.addDirector(director);
@@ -59,7 +59,7 @@ public class DirectorDbStorageTest extends DirectorStorageTest<DirectorDbStorage
     }
 
     @Test
-    @DisplayName("Обновление режиссера")
+    @DisplayName("4) Обновление режиссера")
     void directorUpdateTest() {
         Director director = new Director(10L, "A");
         directorStorage.addDirector(director);
@@ -74,7 +74,7 @@ public class DirectorDbStorageTest extends DirectorStorageTest<DirectorDbStorage
     }
 
     @Test
-    @DisplayName("Обновление не существующего режиссера")
+    @DisplayName("5) Обновление не существующего режиссера")
     void updateDirectorThatDoesntExistsTest() {
         Director director = new Director(1L, "A");
         assertThrows(
@@ -84,7 +84,7 @@ public class DirectorDbStorageTest extends DirectorStorageTest<DirectorDbStorage
     }
 
     @Test
-    @DisplayName("Получение режиссера по несуществующему ID")
+    @DisplayName("6) Получение режиссера по несуществующему ID")
     void getDirectorWithWrongIdTest() {
         assertThrows(
                 EntityNotFoundException.class,

@@ -9,7 +9,6 @@ import java.time.Instant;
 @Data
 @Builder
 public class Event {
-
     private Long eventId;
     private Long userId;
     private EventType eventType;
