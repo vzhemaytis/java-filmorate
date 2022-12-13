@@ -18,6 +18,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorageTest;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -54,7 +55,7 @@ public class FilmDbStorageTest extends FilmStorageTest<FilmDbStorage> {
 
     @Test
     @DisplayName("01) Проверка получения всех фильмов из БД")
-    void getFilmsTest() {
+    void getAllFilmsTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         List<Film> films = filmStorage.getFilms();
         assertEquals(15, films.size());
@@ -62,7 +63,7 @@ public class FilmDbStorageTest extends FilmStorageTest<FilmDbStorage> {
 
     @Test
     @DisplayName("02) Проверка получения пустого списка фильмов из БД")
-    void getFilmsTest2() {
+    void getEmptyFilmsListTest() {
         List<Film> films = filmStorage.getFilms();
         assertTrue(films.isEmpty());
     }
@@ -112,7 +113,7 @@ public class FilmDbStorageTest extends FilmStorageTest<FilmDbStorage> {
 
     @Test
     @DisplayName("05) Проверка получения ошибки при обновлении несуществующего фильма")
-    void updateFilmTest2() {
+    void updateFilmThrowsEntityNotFoundTest() {
         film.setId(1L);
         assertThrows(
                 EntityNotFoundException.class,
@@ -138,7 +139,7 @@ public class FilmDbStorageTest extends FilmStorageTest<FilmDbStorage> {
 
     @Test
     @DisplayName("07) Проверка получения фильма по несуществующему ID")
-    void findFilmTest2() {
+    void findFilmThrowsEntityNotFoundTest() {
         assertThrows(
                 EntityNotFoundException.class,
                 () -> filmStorage.findFilm(1L)
@@ -157,7 +158,7 @@ public class FilmDbStorageTest extends FilmStorageTest<FilmDbStorage> {
 
     @Test
     @DisplayName("09) Проверка получения ошибки при добавления лайка несуществующему фильму")
-    void addLikeTest2() {
+    void addLikeThrowsEntityNotFoundNoFilmTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         assertThrows(
                 EntityNotFoundException.class,
@@ -167,7 +168,7 @@ public class FilmDbStorageTest extends FilmStorageTest<FilmDbStorage> {
 
     @Test
     @DisplayName("10) Проверка получения ошибки при добавления лайка от несуществующему пользователя")
-    void addLikeTest3() {
+    void addLikeThrowsEntityNotFoundNoUserTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         assertThrows(
                 EntityNotFoundException.class,
@@ -190,7 +191,7 @@ public class FilmDbStorageTest extends FilmStorageTest<FilmDbStorage> {
 
     @Test
     @DisplayName("12) Проверка получения ошибки при удалении лайка несуществующему фильму")
-    void deleteLikeTest2() {
+    void deleteLikeThrowEntityNotFoundNoFilmTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         assertThrows(
                 EntityNotFoundException.class,
@@ -200,7 +201,7 @@ public class FilmDbStorageTest extends FilmStorageTest<FilmDbStorage> {
 
     @Test
     @DisplayName("13) Проверка получения ошибки при удалении лайка от несуществующему пользователя")
-    void deleteLikeTest3() {
+    void deleteLikeThrowEntityNotFoundNoUserTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         assertThrows(
                 EntityNotFoundException.class,
@@ -210,7 +211,7 @@ public class FilmDbStorageTest extends FilmStorageTest<FilmDbStorage> {
 
     @Test
     @DisplayName("14) Проверка получения ошибки при удалении несуществующего лайка")
-    void deleteLikeTest4() {
+    void deleteLikeThrowEntityNotFoundNoLikeTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         assertThrows(
                 EntityNotFoundException.class,
@@ -232,14 +233,14 @@ public class FilmDbStorageTest extends FilmStorageTest<FilmDbStorage> {
 
     @Test
     @DisplayName("16) Проверка получения пустого списка популярных фильмов")
-    void getPopularTest2() {
+    void getPopularEmptyListTest() {
         List<Film> popular = filmStorage.getPopular(10);
         assertEquals(0, popular.size());
     }
 
     @Test
     @DisplayName("17) Проверка изменения очередности фильмов в списке популярных фильмов")
-    void getPopularTest3() {
+    void getPopularChangeOrderTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         List<Film> popular = filmStorage.getPopular(10);
         assertEquals(10, popular.size());
@@ -250,5 +251,59 @@ public class FilmDbStorageTest extends FilmStorageTest<FilmDbStorage> {
         popular = filmStorage.getPopular(10);
         assertEquals(10, popular.size());
         assertEquals(1L, popular.get(0).getId());
+    }
+
+    @Test
+    @DisplayName("18) Популярные фильмы по 3 фильтрам")
+    void getPopularFilterByCountGenreAndYearTest() {
+        jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
+
+        Integer genreId = 1;
+        Integer year = 2022;
+
+        List<Film> popular = filmStorage.getFilmsByFilters(10, Optional.of(genreId), Optional.of(year));
+
+        assertEquals(1, popular.size());
+        assertEquals(1L, popular.get(0).getId());
+    }
+
+    @Test
+    @DisplayName("19) Популярные фильмы по 2 фильтрам")
+    void getPopularFilterByCountAndGenreTest() {
+        jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
+
+        Integer genreId = 1;
+
+        film = Film.builder()
+                .name("name1")
+                .description("desc1")
+                .duration(100)
+                .releaseDate( LocalDate.of(2022, 12, 12))
+                .mpa(new Mpa(1))
+                .genres(Set.of(new Genre(1)))
+                .build();
+        Film fromStorage = filmStorage.addNewFilm(film);
+        filmStorage.addLike(fromStorage.getId(), 1L);
+        filmStorage.addLike(fromStorage.getId(), 2L);
+        filmStorage.addLike(fromStorage.getId(), 3L);
+        filmStorage.addLike(fromStorage.getId(), 4L);
+        filmStorage.addLike(fromStorage.getId(), 5L);
+
+        List<Film> popular = filmStorage.getFilmsByFilters(1, Optional.of(genreId), Optional.empty());
+
+        assertEquals(1, popular.size());
+        assertEquals(fromStorage.getId(), popular.get(0).getId());
+        
+       }
+       
+    @Test
+    @DisplayName("20) Проверка удаления фильма")
+    void deleteFilmTest(){
+        jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
+        Integer listFilmsBeforeDelete = filmStorage.getFilms().size();
+        filmStorage.deleteFilm(1L);
+        Integer listFilmsAfterDelete = filmStorage.getFilms().size();
+        assertNotEquals(listFilmsBeforeDelete, listFilmsAfterDelete);
+        assertEquals(filmStorage.getFilms().size(), 14);
     }
 }

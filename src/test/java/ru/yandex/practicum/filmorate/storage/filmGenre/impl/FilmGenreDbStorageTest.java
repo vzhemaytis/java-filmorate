@@ -34,7 +34,7 @@ public class FilmGenreDbStorageTest extends FilmGenreStorageTest<FilmGenresDbSto
 
     @Test
     @DisplayName("1) Проверка получения пустого списка жанров фильма")
-    void addFilmGenreTest() {
+    void getFilmGenreEmptyListTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         Set<Genre> genres = filmGenreStorage.getFilmGenres(7L);
         assertTrue(genres.isEmpty());
@@ -42,7 +42,7 @@ public class FilmGenreDbStorageTest extends FilmGenreStorageTest<FilmGenresDbSto
 
     @Test
     @DisplayName("2) Проверка добавления и получения жанров фильма")
-    void addFilmGenreTest2() {
+    void addFilmGenreAndGetTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         filmGenreStorage.addFilmGenre(7L, Set.of(new Genre(1)));
         Set<Genre> genres = filmGenreStorage.getFilmGenres(7L);
@@ -61,7 +61,7 @@ public class FilmGenreDbStorageTest extends FilmGenreStorageTest<FilmGenresDbSto
 
     @Test
     @DisplayName("3) Проверка обновления жанров фильма")
-    void addFilmGenreTest3() {
+    void updateFilmGenreTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         filmGenreStorage.addFilmGenre(7L, Set.of(new Genre(1)));
         Set<Genre> genres = filmGenreStorage.getFilmGenres(7L);
@@ -80,7 +80,7 @@ public class FilmGenreDbStorageTest extends FilmGenreStorageTest<FilmGenresDbSto
 
     @Test
     @DisplayName("4) Получение ошибки при добавлении несуществующего жанра")
-    void addFilmGenreTest4() {
+    void addFilmGenreThrowsEntityNotFoundTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         assertThrows(
                 EntityNotFoundException.class,

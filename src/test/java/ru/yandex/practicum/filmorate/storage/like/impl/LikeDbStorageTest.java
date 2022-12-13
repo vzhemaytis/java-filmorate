@@ -32,7 +32,7 @@ public class LikeDbStorageTest extends LikeStorageTest<LikeDbStorage> {
 
     @Test
     @DisplayName("1) Проверка добавления и получения списка лайков")
-    void addLikeTest() {
+    void addLikeAndGetLikesAfterAddTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         Set<Long> likes = likeStorage.getLikes(5L);
         assertTrue(likes.isEmpty());
@@ -46,7 +46,7 @@ public class LikeDbStorageTest extends LikeStorageTest<LikeDbStorage> {
 
     @Test
     @DisplayName("2) Проверка удаления и получения списка лайков")
-    void deleteLikeTest() {
+    void deleteLikeAndGetLikesAfterDeleteTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         Set<Long> likes = likeStorage.getLikes(1L);
         assertAll(
@@ -63,7 +63,7 @@ public class LikeDbStorageTest extends LikeStorageTest<LikeDbStorage> {
 
     @Test
     @DisplayName("3) Проверка получения пустого списка лайков")
-    void getLikesTest() {
+    void getEmptyLikesListTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         Set<Long> likes = likeStorage.getLikes(5L);
         assertTrue(likes.isEmpty());    }

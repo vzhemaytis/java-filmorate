@@ -8,7 +8,9 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.BadRequestException;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.event.EventStorage;
 import ru.yandex.practicum.filmorate.storage.friend.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -27,10 +29,12 @@ public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final FriendStorage friendStorage;
+    private final EventStorage eventStorage;
 
-    public UserDbStorage(JdbcTemplate jdbcTemplate, FriendStorage friendStorage) {
+    public UserDbStorage(JdbcTemplate jdbcTemplate, FriendStorage friendStorage, EventStorage eventStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.friendStorage = friendStorage;
+        this.eventStorage = eventStorage;
     }
 
     @Override
@@ -64,11 +68,11 @@ public class UserDbStorage implements UserStorage {
                 "EMAIL = ?, LOGIN = ?, USER_NAME = ?, BIRTHDAY = ? " +
                 "where USER_ID = ?";
         jdbcTemplate.update(sqlQuery
-        , user.getEmail()
-        , user.getLogin()
-        , user.getName()
-        , user.getBirthday()
-        , user.getId());
+                , user.getEmail()
+                , user.getLogin()
+                , user.getName()
+                , user.getBirthday()
+                , user.getId());
         return findUser(user.getId());
     }
 
@@ -76,9 +80,7 @@ public class UserDbStorage implements UserStorage {
     public User findUser(Long id) {
         try {
             String sql = "select * from USERS where USER_ID = ?";
-            User user = jdbcTemplate.queryForObject(sql, (rs, rowNum) -> makeUser(rs), id);
-            user.setFriends(getFriendsIds(user.getId()));
-            return user;
+            return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> makeUser(rs), id);
         } catch (DataAccessException ex) {
             throw new EntityNotFoundException(String.format("%s with id= %s not found", User.class, id));
         }
@@ -106,9 +108,14 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getUserFriends(Long id) {
-        String sql = "select * from USERS as U " +
-                "inner join (select FRIEND_ID from FRIENDS where USER_ID = ?) as F on U.USER_ID = F.FRIEND_ID";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id);
+        User user = findUser(id);
+        if(user!= null) {
+            String sql = "select * from USERS as U " +
+                    "inner join (select FRIEND_ID from FRIENDS where USER_ID = ?) as F on U.USER_ID = F.FRIEND_ID";
+            return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id);
+        } else {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", User.class, id));
+        }
     }
 
     @Override
@@ -117,6 +124,22 @@ public class UserDbStorage implements UserStorage {
                 "inner join (select FRIEND_ID from FRIENDS where USER_ID = ?) as F on U.USER_ID = F.FRIEND_ID " +
                 "inner join (select FRIEND_ID from FRIENDS where USER_ID = ?) as O on U.USER_ID = O.FRIEND_ID ";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id, otherId);
+    }
+
+    @Override
+    public void deleteUser(Long userId) {
+        String sqlDelete = "delete from USERS where USER_ID = ?";
+        try{
+            jdbcTemplate.update(sqlDelete, userId);
+        } catch (DataAccessException ex) {
+            throw new EntityNotFoundException(String.format("%s with id= %s not found", User.class, userId));
+        }
+    }
+
+    @Override
+    public List<Event> getFeed(Long id) {
+        User user = findUser(id);
+        return eventStorage.getFeed(user.getId());
     }
 
     private User makeUser(ResultSet rs) throws SQLException {

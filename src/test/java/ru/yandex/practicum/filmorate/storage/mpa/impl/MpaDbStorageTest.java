@@ -24,7 +24,7 @@ public class MpaDbStorageTest extends MpaStorageTest<MpaDbStorage> {
 
     @Test
     @DisplayName("1) Получение списка категорий")
-    void getMpasTest() {
+    void getAllMpasTest() {
         List<Mpa> mpas = mpaStorage.getMpas();
         assertAll(
                 () -> assertEquals(5, mpas.size()),
@@ -53,7 +53,7 @@ public class MpaDbStorageTest extends MpaStorageTest<MpaDbStorage> {
 
     @Test
     @DisplayName("3) Получение ошибки при запросе несуществующей категории")
-    void findMpaTest2() {
+    void findMpaThrowsEntityNotFoundTest() {
         assertThrows(
                 EntityNotFoundException.class,
                 () -> mpaStorage.findMpa(6)

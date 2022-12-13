@@ -5,6 +5,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FilmService {
@@ -38,7 +39,23 @@ public class FilmService {
         filmStorage.deleteLike(id, userId);
     }
 
-    public List<Film> getPopular(Integer count) {
-        return filmStorage.getPopular(count);
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        return filmStorage.getCommonFilms(userId, friendId);
+    }
+
+    public void deleteFilm(Long filmId) {
+        filmStorage.deleteFilm(filmId);
+    }
+
+    public List<Film> getFilmsByDirectorSortedByYear(Integer directorId, String sortType) {
+        return filmStorage.getFilmsByDirectorSortedByType(directorId, sortType);
+    }
+
+    public List<Film> getFilmsByFilters(Integer count, Optional<Integer> genreId, Optional<Integer> year) {
+        return filmStorage.getFilmsByFilters(count, genreId, year);
+    }
+        
+    public List<Film> search(String query, List<String> searchCriteria) {
+        return filmStorage.search(query, searchCriteria);
     }
 }

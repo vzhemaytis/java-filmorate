@@ -17,7 +17,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorageTest;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -51,7 +50,7 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
 
     @Test
     @DisplayName("01) Проверка получения всех юзеров из БД")
-    void getUsersTest() {
+    void getAllUsersTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         List<User> users = userStorage.getUsers();
         assertEquals(10, users.size());
@@ -59,14 +58,14 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
 
     @Test
     @DisplayName("02) Проверка получения пустого списка юзеров из БД")
-    void getUsersTes2() {
+    void getEmptyUsersListTes2() {
         List<User> users = userStorage.getUsers();
         assertTrue(users.isEmpty());
     }
 
     @Test
     @DisplayName("03) Проверка добавления нового пользователя в БД")
-    void addUserTest() {
+    void addOneUserTest() {
         User addedUser = userStorage.addNewUser(user);
         List<User> users = userStorage.getUsers();
         assertAll(
@@ -80,7 +79,7 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
     }
 
     @Test
-    @DisplayName("04) Проверка обновления фильма")
+    @DisplayName("04) Проверка обновления пользователя")
     void updateUserTest() {
         userStorage.addNewUser(user);
         LocalDate newBirthday = LocalDate.of(1999, 12, 12);
@@ -105,7 +104,7 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
 
     @Test
     @DisplayName("05) Проверка получения ошибки при обновлении несуществующего пользователя")
-    void updateUserTest2() {
+    void updateUserThrowsEntityNotFoundTest() {
         user.setId(1L);
         assertThrows(
                 EntityNotFoundException.class,
@@ -115,7 +114,7 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
 
     @Test
     @DisplayName("06) Провервка получения пользователя по ID")
-    void findUserTest() {
+    void findUserByIdTest() {
         userStorage.addNewUser(user);
         User findUser = userStorage.findUser(1L);
         assertAll(
@@ -129,7 +128,7 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
 
     @Test
     @DisplayName("07) Проверка получения пользователя по несуществующему ID")
-    void findUserTest2() {
+    void findUserThrowsEntityNotFoundWrondIdTest() {
         assertThrows(
                 EntityNotFoundException.class,
                 () -> userStorage.findUser(1L)
@@ -142,13 +141,15 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         userStorage.addFriend(6L, 7L);
         userStorage.addFriend(6L, 8L);
-        User userWithFriends = userStorage.findUser(6L);
-        assertEquals(Set.of(7L, 8L), userWithFriends.getFriends());
+        List<User> friends = userStorage.getUserFriends(6L);
+        assertEquals(2, friends.size());
+        assertEquals(7L, friends.get(0).getId());
+        assertEquals(8L, friends.get(1).getId());
     }
 
     @Test
     @DisplayName("09) Проверка получения ошибки при добавлении в друзья несуществующего пользователя")
-    void addFriendTest2() {
+    void addFriendThrowsEntityNotFoundWrongFriendIdTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         assertThrows(
                 EntityNotFoundException.class,
@@ -158,7 +159,7 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
 
     @Test
     @DisplayName("10) Проверка получения ошибки при добавлении в друзья несуществующему пользователю")
-    void addFriendTest3() {
+    void addFriendThrowsEntityNotFoundWrongUserIdTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         assertThrows(
                 EntityNotFoundException.class,
@@ -168,7 +169,7 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
 
     @Test
     @DisplayName("11) Проверка получения ошибки при добавлении в друзья самого себя")
-    void addFriendTest4() {
+    void addFriendThrowsBadRequestWhenUserAddHimselfToFriendsTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         assertThrows(
                 BadRequestException.class,
@@ -180,19 +181,19 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
     @DisplayName("12) Проверка удаления из друзей")
     void deleteFriendTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
-        User userWithFriend = userStorage.findUser(1L);
+        List<User> frineds = userStorage.getUserFriends(1L);
         assertAll(
-                () -> assertEquals(1, userWithFriend.getFriends().size()),
-                () -> assertEquals(Set.of(2L), userWithFriend.getFriends())
+                () -> assertEquals(1, frineds.size()),
+                () -> assertEquals(2L, frineds.get(0).getId())
         );
         userStorage.deleteFriend(1L, 2L);
-        User userWithoutFriend = userStorage.findUser(1L);
-        assertTrue(userWithoutFriend.getFriends().isEmpty());
+        List<User> noFriends = userStorage.getUserFriends(1L);
+        assertTrue(noFriends.isEmpty());
     }
 
     @Test
     @DisplayName("13) Проверка получения ошибки при удалении из друзей самого себя")
-    void deleteFriendTest2() {
+    void deleteFriendThrowsBadRequestWhenUserDeleteHimselfFromFriendsTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         assertThrows(
                 BadRequestException.class,
@@ -202,7 +203,7 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
 
     @Test
     @DisplayName("14) Проверка получения ошибки при удалении из друзей несуществующего пользователя")
-    void deleteFriendTest3() {
+    void deleteFriendThrowsEntityNotFoundWrongFriendIdTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         assertThrows(
                 EntityNotFoundException.class,
@@ -212,7 +213,7 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
 
     @Test
     @DisplayName("15) Проверка получения ошибки при удалении друга у несуществующего пользователя")
-    void deleteFriendTest4() {
+    void deleteFriendThrowsEntityNotFoundWrongUserIdTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         assertThrows(
                 EntityNotFoundException.class,
@@ -222,7 +223,7 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
 
     @Test
     @DisplayName("16) Проверка получения пустого списка друзей пользователя")
-    void getUserFriendsTest() {
+    void getEmptyUserFriendsListTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         List<User> friends = userStorage.getUserFriends(6L);
         assertTrue(friends.isEmpty());
@@ -230,7 +231,7 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
 
     @Test
     @DisplayName("17) Проверка получения списка друзей пользователя")
-    void getUserFriendsTest2() {
+    void getUserFriendsListTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         List<User> friends = userStorage.getUserFriends(1L);
         User friend = userStorage.findUser(2L);
@@ -242,7 +243,7 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
 
     @Test
     @DisplayName("18) Проверка получения пустого списка общих друзей")
-    void getCommonFriendsTest() {
+    void getEmptyCommonFriendsListTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         List<User> commonFriends = userStorage.getCommonFriends(1L, 5L);
         assertTrue(commonFriends.isEmpty());
@@ -250,13 +251,33 @@ public class UserDbStorageTest extends UserStorageTest<UserDbStorage> {
 
     @Test
     @DisplayName("19) Проверка получения списка общих друзей")
-    void getCommonFriendsTest2() {
+    void getCommonFriendsTest() {
         jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
         User commonFriend = userStorage.findUser(1L);
         List<User> commonFriends = userStorage.getCommonFriends(2L, 3L);
         assertAll(
                 () -> assertEquals(1, commonFriends.size()),
                 () -> assertEquals(List.of(commonFriend), commonFriends)
+        );
+    }
+
+    @Test
+    @DisplayName("20) Проверка удаления пользователя")
+    void deleteUserTest(){
+        jdbcTemplate.update("runscript from 'src/test/resources/testdata.sql'");
+        Integer listUsersBeforeDelete = userStorage.getUsers().size();
+        userStorage.deleteUser(1L);
+        Integer listUsersAfterDelete = userStorage.getUsers().size();
+        assertNotEquals(listUsersBeforeDelete, listUsersAfterDelete);
+        assertEquals(userStorage.getUsers().size(), 9);
+    }
+
+    @Test
+    @DisplayName("21) Проверка получения ошибки при получении ленты событий несуществующего пользователя")
+    void getFeedThrowsEntityNotFoundWrongUserIdTest() {
+        assertThrows(
+                EntityNotFoundException.class,
+                () -> userStorage.getFeed(1L)
         );
     }
 }

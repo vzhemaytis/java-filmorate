@@ -1,17 +1,23 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class UserService {
     private final UserStorage userStorage;
+    private final FilmStorage filmStorage;
 
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage, FilmStorage filmStorage) {
         this.userStorage = userStorage;
+        this.filmStorage = filmStorage;
     }
 
     public List<User> getUsers() {
@@ -46,4 +52,19 @@ public class UserService {
         return userStorage.getCommonFriends(id, otherId);
     }
 
+    public void deleteUser(Long userId){
+        userStorage.deleteUser(userId);
+    }
+
+    public List<Event> getFeed(Long id) { return userStorage.getFeed(id); }
+    public List<Film> getRecommendationsFilms(Long id) {
+        List<Long> likeFilm = filmStorage.getLikeFilmsUsersId(id);
+        List<Long> recommendations = filmStorage.getRecommendations(id);
+        recommendations.removeAll(likeFilm);
+        List<Film> recommendationUserFilms = new ArrayList<>();
+        for (Long filmId : recommendations) {
+            recommendationUserFilms.add(filmStorage.findFilm(filmId));
+        }
+        return recommendationUserFilms;
+    }
 }

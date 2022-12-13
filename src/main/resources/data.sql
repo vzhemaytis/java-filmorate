@@ -1,10 +1,3 @@
-delete from LIKES;
-delete from FILM_GENRES;
-delete from FRIENDS;
-delete from FILMS;
-delete from USERS;
-alter table FILMS alter column FILM_ID restart with 1;
-alter table USERS alter column USER_ID restart with 1;
 merge into MPA_RATING (MPA_ID, MPA_NAME)
     values (1, 'G'),
            (2, 'PG'),
